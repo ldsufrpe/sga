@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0/dist/chartjs-plugin-datalabels.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+</head>
+<body class="bg-gray-100">
+    <!-- Menu Responsivo -->
+    <nav class="bg-[#1b2d4f] p-4 shadow-md">
+        <div class="container mx-auto flex justify-between items-center">
+            <div class="text-white text-lg font-semibold">
+                <i class="fas fa-book mr-2"></i> SGA - Sistema de Gestão de Artigos
+            </div>
+            <div class="block md:hidden">
+                <button id="menuButton" class="text-white focus:outline-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"/>
+                    </svg>
+                </button>
+            </div>
+            <div id="menuItems" class="hidden md:flex space-x-4">
+                <a href="{{ url_for('main.painel') }}" class="text-white hover:text-[#f9b233]">
+                    <i class="fas fa-home mr-2 text-lg"></i> Painel
+                </a>
+                <a href="{{ url_for('main.submit_artigo') }}" class="text-white hover:text-[#f9b233]">
+                    <i class="fas fa-file-alt mr-2 text-lg"></i> Cadastro de Artigos
+                </a>
+                <a href="{{ url_for('main.dashboard') }}" class="text-white hover:text-[#f9b233]">
+                    <i class="fas fa-chart-bar mr-2 text-lg"></i> Dashboard
+                </a>
+                <a href="{{ url_for('main.listar_artigos') }}" class="text-white hover:text-[#f9b233]">
+                    <i class="fas fa-list mr-2 text-lg"></i> Listagem de Artigos
+                </a>
+
+                <!-- Se o usuário for admin, mostrar o menu de administração -->
+                {% if current_user.is_authenticated and current_user.is_admin %}
+                <div class="relative group">
+                    <!-- Botão de Administração -->
+                    <button class="text-white hover:text-[#f9b233] focus:outline-none">
+                        <i class="fas fa-cog mr-2 text-lg"></i> Administração
+                    </button>
+
+<!-- Dropdown para o menu de administração -->
+<div class="absolute left-0 top-full w-48 bg-white text-gray-800 rounded shadow-md hidden group-hover:flex flex-col z-10">
+    <a href="{{ url_for('admin.list_users') }}" class="block px-0.5 py-0.5 text-center hover:bg-gray-200">Gerenciar Usuários</a>
+</div>
+
+                </div>
+                {% endif %}
+
+                <!-- Exibir Logout se o usuário estiver autenticado -->
+                {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('auth.logout') }}" class="text-white hover:text-[#f9b233]">
+                        <i class="fas fa-sign-out-alt mr-2 text-lg"></i> Logout
+                    </a>
+                {% else %}
+                    <a href="{{ url_for('auth.login') }}" class="text-white hover:text-[#f9b233]">
+                        <i class="fas fa-sign-in-alt mr-2 text-lg"></i> Login
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+
+
+
+   <div class="container mx-auto p-4 sm:p-6">
+    <!-- Usando flexbox para alinhar título e botão na mesma linha -->
+    <div class="flex justify-between items-center mb-4 sm:mb-6">
+        <h1 class="text-3xl font-bold text-gray-800">Análise de Dados dos Artigos</h1>
+        <a href="{{ url_for('admin.download_pdf') }}">
+            <button class="bg-[#f9b233] text-white py-2 px-4 rounded hover:bg-[#1b2d4f]">
+                <i class="fas fa-file-pdf"></i> Baixar Relatório em PDF
+            </button>
+        </a>
+    </div>
+</div>
+        <!-- Métricas Principais -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 mb-4 sm:mb-6">
+            <div class="bg-[#b61823] text-white p-3 sm:p-4 rounded-lg shadow">
+                <h2 class="text-lg">Total de Artigos</h2>
+                <p id="totalArtigos" class="text-2xl font-bold">0</p>
+            </div>
+            <div class="bg-[#f9b233] text-white p-3 sm:p-4 rounded-lg shadow">
+                <h2 class="text-lg">Média de Fator de Impacto</h2>
+                <p id="mediaFatorImpacto" class="text-2xl font-bold">0.0</p>
+            </div>
+            <div class="bg-[#1b2d4f] text-white p-3 sm:p-4 rounded-lg shadow">
+                <h2 id="artigosAnoAtualTitulo" class="text-lg">Artigos do Ano Atual</h2>
+                <p id="artigosAnoAtual" class="text-2xl font-bold">0</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 sm:gap-6">
+            <!-- Barra Lateral para Filtros e Métricas Filtradas -->
+            <div class="md:col-span-1">
+                <h3 class="text-lg font-semibold mb-4">Filtrar Dados</h3>
+                <div class="bg-white p-3 sm:p-4 rounded-lg shadow mb-4 sm:mb-6">
+                    <label class="block text-gray-700">Selecione a Área de Avaliação:</label>
+                    <select id="areaSelector" class="w-full p-2 border rounded mt-2 mb-4 bg-gray-100 text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#b61823]">
+                        <option value="">Todas as Áreas</option>
+                        {% for area in areas %}
+                        <option value="{{ area.id }}">{{ area.nome }}</option>
+                        {% endfor %}
+                    </select>
+
+                    <label class="block text-gray-700">Selecione a Área Específica:</label>
+                    <select id="subareaSelector" class="w-full p-2 border rounded mt-2 mb-4 bg-gray-100 text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#b61823]">
+                        <option value="">Todas as Áreas Específicas</option>
+                        {% for subarea in subareas %}
+                        <option value="{{ subarea.id }}">{{ subarea.nome }}</option>
+                        {% endfor %}
+                    </select>
+
+                    <label class="block text-gray-700">Selecione o Intervalo de Anos:</label>
+                    <div class="grid grid-cols-2 gap-2 mt-2">
+                        <select id="anoInicioSelector" class="p-2 border rounded bg-gray-100 text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#b61823]">
+                            <option value="">Ano Inicial</option>
+                            {% for ano in anos %}
+                            <option value="{{ ano }}">{{ ano }}</option>
+                            {% endfor %}
+                        </select>
+                        <select id="anoFimSelector" class="p-2 border rounded bg-gray-100 text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#b61823]">
+                            <option value="">Ano Final</option>
+                            {% for ano in anos %}
+                            <option value="{{ ano }}">{{ ano }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <h3 class="text-lg font-semibold mb-4">Métricas Filtradas</h3>
+                <div class="bg-[#1b2d4f] text-white p-3 sm:p-4 rounded-lg shadow mb-4">
+                    <h4 class="text-sm">Total de Artigos Filtrados</h4>
+                    <p id="totalArtigosFiltrados" class="text-xl font-bold">0</p>
+                </div>
+                <div class="bg-[#1b2d4f] text-white p-3 sm:p-4 rounded-lg shadow">
+                    <h4 class="text-sm">Média de Fator de Impacto Filtrada</h4>
+                    <p id="mediaFatorImpactoFiltrada" class="text-xl font-bold">0.0</p>
+                </div>
+            </div>
+
+            <!-- Gráficos -->
+            <div class="md:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                <div class="bg-white p-3 sm:p-4 rounded-lg shadow">
+                    <h3 class="text-lg font-semibold mb-4">Distribuição de Publicações por Ano</h3>
+                    <div class="overflow-x-auto">
+                        <canvas id="chart1"></canvas>
+                    </div>
+                </div>
+                <div class="bg-white p-3 sm:p-4 rounded-lg shadow">
+                    <h3 class="text-lg font-semibold mb-4">Distribuição por Classificação Qualis</h3>
+                    <div class="overflow-x-auto">
+                        <canvas id="chart2"></canvas>
+                    </div>
+                </div>
+                <div class="bg-white p-3 sm:p-4 rounded-lg shadow col-span-2">
+                    <h3 class="text-lg font-semibold mb-4">Publicações por Revista</h3>
+                    <div class="overflow-x-auto">
+                        <canvas id="chart3"></canvas>
+                    </div>
+                </div>
+                <div class="bg-white p-3 sm:p-4 rounded-lg shadow col-span-2">
+                    <h3 class="text-lg font-semibold mb-4">Publicações por Área Específica</h3>
+                    <div class="overflow-x-auto">
+                        <canvas id="chart4"></canvas>
+                    </div>
+                </div>
+                <div class="bg-white p-3 sm:p-4 rounded-lg shadow">
+                    <h3 class="text-lg font-semibold mb-4">Evolução do Fator de Impacto por Ano</h3>
+                    <div class="overflow-x-auto">
+                        <canvas id="chart5"></canvas>
+                    </div>
+                </div>
+                <div class="bg-white p-3 sm:p-4 rounded-lg shadow">
+                    <h3 class="text-lg font-semibold mb-4">Distribuição de Publicações Internacionalizadas</h3>
+                    <div class="overflow-x-auto">
+                        <canvas id="chart6"></canvas>
+                    </div>
+                </div>
+                <div class="bg-white p-3 sm:p-4 rounded-lg shadow">
+                    <h3 class="text-lg font-semibold mb-4">Classificação Qualis (Gráfico de Pizza)</h3>
+                    <div class="overflow-x-auto">
+                        <canvas id="chart7"></canvas>
+                    </div>
+                </div>
+                <div class="bg-white p-3 sm:p-4 rounded-lg shadow">
+                    <h3 class="text-lg font-semibold mb-4">Publicações por Área de Avaliação Qualis</h3>
+                    <div class="overflow-x-auto">
+                        <canvas id="chart8"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <div class="text-right mt-8">
+        <a href="{{ url_for('admin.download_pdf') }}">
+            <button class="bg-[#f9b233] text-white py-2 px-4 rounded hover:bg-[#1b2d4f]">
+                <i class="fas fa-file-pdf"></i> Baixar Relatório em PDF
+            </button>
+        </a>
+    </div>
+    </div>
+
+    <!-- Script para carregar e atualizar os gráficos -->
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+    <script>
+        document.getElementById('menuButton').addEventListener('click', function() {
+            const menu = document.getElementById('menuItems');
+            menu.classList.toggle('hidden');
+        });
+    </script>
+</body>
+</html>

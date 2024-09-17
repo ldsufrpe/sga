@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Listar Artigos</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+</head>
+
+<body class="bg-gray-100 text-gray-800">
+    <!-- Menu Responsivo -->
+    <nav class="bg-[#1b2d4f] p-4 shadow-md">
+        <div class="container mx-auto flex justify-between items-center">
+            <div class="text-white text-lg font-semibold">
+                <i class="fas fa-book mr-2"></i>SGA - Sistema de Gestão de Artigos
+            </div>
+            <div class="block md:hidden">
+                <button id="menuButton" class="text-white focus:outline-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"/>
+                    </svg>
+                </button>
+            </div>
+            <div id="menuItems" class="hidden md:flex space-x-4">
+                <a href="{{ url_for('main.painel') }}" class="text-white hover:text-[#f9b233]">
+                    <i class="fas fa-home mr-2 text-lg"></i> Painel
+                </a>
+                <a href="{{ url_for('main.submit_artigo') }}" class="text-white hover:text-[#f9b233]">
+                    <i class="fas fa-file-alt mr-2 text-lg"></i> Cadastro de Artigos
+                </a>
+                <a href="{{ url_for('main.dashboard') }}" class="text-white hover:text-[#f9b233]">
+                    <i class="fas fa-chart-bar mr-2 text-lg"></i> Dashboard
+                </a>
+                <a href="{{ url_for('main.listar_artigos') }}" class="text-white hover:text-[#f9b233]">
+                    <i class="fas fa-list mr-2 text-lg"></i> Listagem de Artigos
+                </a>
+
+                <!-- Se o usuário for admin, mostrar o menu de administração -->
+                {% if current_user.is_authenticated and current_user.is_admin %}
+                <div class="relative group">
+                    <!-- Botão de Administração -->
+                    <button class="text-white hover:text-[#f9b233] focus:outline-none">
+                        <i class="fas fa-cog mr-2 text-lg"></i> Administração
+                    </button>
+
+<!-- Dropdown para o menu de administração -->
+<div class="absolute left-0 top-full w-48 bg-white text-gray-800 rounded shadow-md hidden group-hover:flex flex-col z-10">
+    <a href="{{ url_for('admin.list_users') }}" class="block px-0.5 py-0.5 text-center hover:bg-gray-200">Gerenciar Usuários</a>
+</div>
+
+                </div>
+                {% endif %}
+
+                <!-- Exibir Logout se o usuário estiver autenticado -->
+                {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('auth.logout') }}" class="text-white hover:text-[#f9b233]">
+                        <i class="fas fa-sign-out-alt mr-2 text-lg"></i> Logout
+                    </a>
+                {% else %}
+                    <a href="{{ url_for('auth.login') }}" class="text-white hover:text-[#f9b233]">
+                        <i class="fas fa-sign-in-alt mr-2 text-lg"></i> Login
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+    <div class="container mx-auto p-6">
+        <h1 class="text-3xl font-bold mb-6 text-[#1b2d4f]">Gerenciamento de Artigos</h1>
+
+        <!-- Formulário de Pesquisa e Filtros -->
+        <form method="GET" action="{{ url_for('main.listar_artigos') }}" id="listar-artigos-form" class="mb-6 grid grid-cols-1 md:grid-cols-6 gap-4">
+            <input type="text" name="titulo" class="form-input mt-1 block w-full bg-white border border-gray-300 rounded-md shadow-sm focus:ring-[#f9b233] focus:border-[#f9b233]" placeholder="Título" value="{{ request.args.get('titulo', '') }}">
+            <input type="text" name="revista" class="form-input mt-1 block w-full bg-white border border-gray-300 rounded-md shadow-sm focus:ring-[#f9b233] focus:border-[#f9b233]" placeholder="Revista" value="{{ request.args.get('revista', '') }}">
+            <input type="number" name="ano" class="form-input mt-1 block w-full bg-white border border-gray-300 rounded-md shadow-sm focus:ring-[#f9b233] focus:border-[#f9b233]" placeholder="Ano de Publicação" value="{{ request.args.get('ano', '') }}">
+            <input type="text" name="classificacao" class="form-input mt-1 block w-full bg-white border border-gray-300 rounded-md shadow-sm focus:ring-[#f9b233] focus:border-[#f9b233]" placeholder="Classificação" value="{{ request.args.get('classificacao', '') }}">
+
+            <select name="area_id" class="form-select mt-1 block w-full bg-white border border-gray-300 rounded-md shadow-sm focus:ring-[#f9b233] focus:border-[#f9b233]">
+                <option value="">Área de Avaliação</option>
+                {% for area in areas %}
+                <option value="{{ area.id }}" {% if request.args.get('area_id') == area.id|string %}selected{% endif %}>{{ area.nome }}</option>
+                {% endfor %}
+            </select>
+
+            <select name="subarea_id" class="form-select mt-1 block w-full bg-white border border-gray-300 rounded-md shadow-sm focus:ring-[#f9b233] focus:border-[#f9b233]">
+                <option value="">Área Específica</option>
+                {% for subarea in subareas %}
+                <option value="{{ subarea.id }}" {% if request.args.get('subarea_id') == subarea.id|string %}selected{% endif %}>{{ subarea.nome }}</option>
+                {% endfor %}
+            </select>
+
+            <!-- Novo seletor para "Itens por página" -->
+            <select name="per_page" class="form-select mt-1 block w-full bg-white border border-gray-300 rounded-md shadow-sm focus:ring-[#f9b233] focus:border-[#f9b233]">
+                <option value="10" {% if request.args.get('per_page') == '10' %}selected{% endif %}>10 por página</option>
+                <option value="20" {% if request.args.get('per_page') == '20' %}selected{% endif %}>20 por página</option>
+                <option value="30" {% if request.args.get('per_page') == '30' %}selected{% endif %}>30 por página</option>
+                <option value="40" {% if request.args.get('per_page') == '40' %}selected{% endif %}>40 por página</option>
+                <option value="50" {% if request.args.get('per_page') == '50' %}selected{% endif %}>50 por página</option>
+                <option value="100" {% if request.args.get('per_page') == '100' %}selected{% endif %}>100 por página</option>
+            </select>
+
+            <input type="hidden" name="sort_by" value="{{ request.args.get('sort_by', 'id') }}">
+            <input type="hidden" name="sort_dir" value="{{ request.args.get('sort_dir', 'asc') }}">
+
+            <div class="flex space-x-4 col-span-1 md:col-span-2">
+                <button type="submit" class="bg-[#1b2d4f] text-white font-bold py-2 px-4 rounded-md hover:bg-[#b61823] transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[#f9b233] focus:ring-opacity-50">
+                    Pesquisar
+                </button>
+                <a href="{{ url_for('main.listar_artigos') }}" class="bg-gray-500 text-white font-bold py-2 px-4 rounded-md hover:bg-gray-600 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-50">
+                    Limpar Busca
+                </a>
+            </div>
+        </form>
+
+        <!-- Formulário de Exportação -->
+        <form method="GET" action="{{ url_for('main.exportar_artigos') }}" id="export-form" class="mb-6">
+            <input type="hidden" name="titulo" value="{{ request.args.get('titulo', '') }}">
+            <input type="hidden" name="revista" value="{{ request.args.get('revista', '') }}">
+            <input type="hidden" name="ano" value="{{ request.args.get('ano', '') }}">
+            <input type="hidden" name="classificacao" value="{{ request.args.get('classificacao', '') }}">
+            <input type="hidden" name="area_id" value="{{ request.args.get('area_id', '') }}">
+            <input type="hidden" name="subarea_id" value="{{ request.args.get('subarea_id', '') }}">
+            <input type="hidden" name="sort_by" value="{{ request.args.get('sort_by', 'id') }}">
+            <input type="hidden" name="sort_dir" value="{{ request.args.get('sort_dir', 'asc') }}">
+
+            <div class="flex space-x-4">
+            <button type="submit" class="bg-[#f9b233] text-white font-bold py-2 px-4 rounded-md hover:bg-[#14223b] transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[#f9b233] focus:ring-opacity-50" name="format" value="csv">Exportar CSV</button>
+            <button type="submit" class="bg-[#f9b233] text-white font-bold py-2 px-4 rounded-md hover:bg-[#14223b] transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[#f9b233] focus:ring-opacity-50" name="format" value="xlsx">Exportar XLSX</button>
+            <button type="submit" class="bg-[#f9b233] text-white font-bold py-2 px-4 rounded-md hover:bg-[#14223b] transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[#f9b233] focus:ring-opacity-50" name="format" value="json">Exportar JSON</button>
+        </div>
+        </form>
+
+        <!-- Placeholder para as mensagens de sucesso -->
+        <div id="messages"></div>
+
+        {% if artigos.items %}
+        <table class="min-w-full bg-white shadow-md rounded-lg overflow-hidden">
+            <thead class="bg-[#1b2d4f] text-white">
+                <tr>
+                    <th class="py-2 px-4 text-left">
+                        <a href="{{ url_for('main.listar_artigos', sort_by='id', sort_dir='desc' if request.args.get('sort_by') == 'id' and request.args.get('sort_dir') == 'asc' else 'asc') }}" class="hover:underline">
+                            ID
+                            {% if request.args.get('sort_by') == 'id' %}
+                                <i class="fas fa-sort-{{ 'up' if request.args.get('sort_dir') == 'asc' else 'down' }}"></i>
+                            {% endif %}
+                        </a>
+                    </th>
+                    <th class="py-2 px-4 text-left">
+                        <a href="{{ url_for('main.listar_artigos', sort_by='titulo', sort_dir='desc' if request.args.get('sort_by') == 'titulo' and request.args.get('sort_dir') == 'asc' else 'asc') }}" class="hover:underline">
+                            Título
+                            {% if request.args.get('sort_by') == 'titulo' %}
+                                <i class="fas fa-sort-{{ 'up' if request.args.get('sort_dir') == 'asc' else 'down' }}"></i>
+                            {% endif %}
+                        </a>
+                    </th>
+                    <th class="py-2 px-4 text-left">
+                        <a href="{{ url_for('main.listar_artigos', sort_by='revista', sort_dir='desc' if request.args.get('sort_by') == 'revista' and request.args.get('sort_dir') == 'asc' else 'asc') }}" class="hover:underline">
+                            Revista
+                            {% if request.args.get('sort_by') == 'revista' %}
+                                <i class="fas fa-sort-{{ 'up' if request.args.get('sort_dir') == 'asc' else 'down' }}"></i>
+                            {% endif %}
+                        </a>
+                    </th>
+                    <th class="py-2 px-4 text-left">
+                        <a href="{{ url_for('main.listar_artigos', sort_by='classificacao', sort_dir='desc' if request.args.get('sort_by') == 'classificacao' and request.args.get('sort_dir') == 'asc' else 'asc') }}" class="hover:underline">
+                            Classificação
+                            {% if request.args.get('sort_by') == 'classificacao' %}
+                                <i class="fas fa-sort-{{ 'up' if request.args.get('sort_dir') == 'asc' else 'down' }}"></i>
+                            {% endif %}
+                        </a>
+                    </th>
+                    <th class="py-2 px-4 text-left">
+                        <a href="{{ url_for('main.listar_artigos', sort_by='ano', sort_dir='desc' if request.args.get('sort_by') == 'ano' and request.args.get('sort_dir') == 'asc' else 'asc') }}" class="hover:underline">
+                            Ano
+                            {% if request.args.get('sort_by') == 'ano' %}
+                                <i class="fas fa-sort-{{ 'up' if request.args.get('sort_dir') == 'asc' else 'down' }}"></i>
+                            {% endif %}
+                        </a>
+                    </th>
+                    <th class="py-2 px-4 text-left">Ações</th>
+                </tr>
+            </thead>
+            <tbody class="text-gray-700">
+                {% for artigo in artigos.items %}
+                <tr class="border-b border-gray-200 hover:bg-gray-100">
+                    <td class="py-2 px-4">{{ artigo.id }}</td>
+                    <td class="py-2 px-4">{{ artigo.titulo }}</td>
+                    <td class="py-2 px-4">{{ artigo.revista }}</td>
+                    <td class="py-2 px-4">{{ artigo.classificacao }}</td>
+                    <td class="py-2 px-4">{{ artigo.ano }}</td>
+                   <td class="py-2 px-4 flex space-x-2">
+    <!-- Botão de Visualizar -->
+    <a href="{{ url_for('main.visualizar_artigo', id=artigo.id) }}" class="text-white bg-green-600 hover:bg-yellow-600 font-semibold py-1 px-3 rounded-md text-sm" title="Visualizar">
+        <i class="fas fa-eye"></i> <!-- Ícone de Visualizar (Olho) -->
+    </a>
+
+    <!-- Botão de Editar -->
+    <a href="{{ url_for('main.editar_artigo', id=artigo.id) }}" class="text-white bg-blue-500 hover:bg-blue-600 font-semibold py-1 px-3 rounded-md text-sm" title="Editar">
+        <i class="fas fa-edit"></i> <!-- Ícone de Editar (Lápis) -->
+    </a>
+
+    <!-- Botão de Deletar -->
+    <form action="{{ url_for('main.deletar_artigo', id=artigo.id) }}" method="POST" class="inline-block">
+        <button type="submit" class="text-white bg-red-500 hover:bg-red-600 font-semibold py-1 px-3 rounded-md text-sm" onclick="return confirm('Tem certeza que deseja deletar este artigo?');" title="Excluir">
+            <i class="fas fa-trash-alt"></i> <!-- Ícone de Deletar (Lixeira) -->
+        </button>
+    </form>
+</td>
+
+
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+         <!-- Controles de Paginação -->
+        <nav aria-label="Navegação de página" class="mt-6">
+            <ul class="pagination flex justify-center space-x-2">
+                <li class="page-item {% if not artigos.has_prev %}disabled{% endif %}">
+                    <a class="page-link py-1 px-3 bg-gray-200 hover:bg-gray-300 rounded-md" href="{{ url_for('main.listar_artigos', page=artigos.prev_num, per_page=request.args.get('per_page', '10'), sort_by=request.args.get('sort_by'), sort_dir=request.args.get('sort_dir')) }}" aria-label="Anterior">
+                        &laquo;
+                    </a>
+                </li>
+                {% for page_num in artigos.iter_pages() %}
+                <li class="page-item {% if page_num == artigos.page %}active{% endif %}">
+                    <a class="page-link py-1 px-3 {% if page_num == artigos.page %}bg-blue-500 text-white{% else %}bg-gray-200 hover:bg-gray-300{% endif %} rounded-md" href="{{ url_for('main.listar_artigos', page=page_num, per_page=request.args.get('per_page', '10'), sort_by=request.args.get('sort_by'), sort_dir=request.args.get('sort_dir')) }}">
+                        {{ page_num }}
+                    </a>
+                </li>
+                {% endfor %}
+                <li class="page-item {% if not artigos.has_next %}disabled{% endif %}">
+                    <a class="page-link py-1 px-3 bg-gray-200 hover:bg-gray-300 rounded-md" href="{{ url_for('main.listar_artigos', page=artigos.next_num, per_page=request.args.get('per_page', '10'), sort_by=request.args.get('sort_by'), sort_dir=request.args.get('sort_dir')) }}" aria-label="Próximo">
+                        &raquo;
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        {% else %}
+        <p class="text-red-500">Nenhum artigo encontrado para os parâmetros fornecidos.</p>
+        {% endif %}
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        toastr.options = {
+                            "closeButton": true,
+                            "progressBar": true,
+                            "positionClass": "toast-top-right",
+                            "timeOut": "5000"
+                        };
+                        toastr["{{ category }}"]("{{ message }}");
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        });
+    </script>
+    <script src="{{ url_for('static', filename='js/listar_artigos.js') }}"></script>
+    <script>
+        document.getElementById('menuButton').addEventListener('click', function() {
+            const menu = document.getElementById('menuItems');
+            menu.classList.toggle('hidden');
+        });
+    </script>
+</body>
+
+</html>

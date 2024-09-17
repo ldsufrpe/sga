@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body class="bg-gray-100">
+
+    <!-- Menu Responsivo -->
+    <nav class="bg-[#1b2d4f] p-4 shadow-md">
+        <div class="container mx-auto flex justify-between items-center">
+            <div class="text-white text-lg font-semibold">
+                <i class="fas fa-book mr-2"></i> SGA - Sistema de Gestão de Artigos
+            </div>
+        </div>
+    </nav>
+
+    <!-- Formulário de Registro -->
+    <div class="container mx-auto mt-10">
+        <div class="max-w-md mx-auto bg-white p-8 rounded-lg shadow-md">
+            <h2 class="text-2xl font-bold text-center text-[#1b2d4f] mb-6">Registrar-se</h2>
+
+            <!-- Exibir mensagens flash -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="bg-{{ category == 'success' and 'green' or 'red' }}-100 border-l-4 border-{{ category == 'success' and 'green' or 'red' }}-500 text-{{ category == 'success' and 'green' or 'red' }}-700 p-4 mb-4">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+            {% endwith %}
+
+            <form method="POST" action="{{ url_for('admin.register') }}">
+                {{ form.hidden_tag() }}
+
+                <div class="mb-4">
+                    {{ form.name.label(class="block text-gray-700") }}
+                    {{ form.name(class="form-input mt-1 block w-full bg-gray-100 border border-gray-300 rounded-md focus:ring-[#f9b233] focus:border-[#f9b233]") }}
+                    {% for error in form.name.errors %}
+                        <span class="text-red-500 text-sm">{{ error }}</span>
+                    {% endfor %}
+                </div>
+
+                <div class="mb-4">
+                    {{ form.email.label(class="block text-gray-700") }}
+                    {{ form.email(class="form-input mt-1 block w-full bg-gray-100 border border-gray-300 rounded-md focus:ring-[#f9b233] focus:border-[#f9b233]") }}
+                    {% for error in form.email.errors %}
+                        <span class="text-red-500 text-sm">{{ error }}</span>
+                    {% endfor %}
+                </div>
+
+                <div class="mb-4">
+                    {{ form.password.label(class="block text-gray-700") }}
+                    {{ form.password(class="form-input mt-1 block w-full bg-gray-100 border border-gray-300 rounded-md focus:ring-[#f9b233] focus:border-[#f9b233]") }}
+                    {% for error in form.password.errors %}
+                        <span class="text-red-500 text-sm">{{ error }}</span>
+                    {% endfor %}
+                </div>
+
+                <div class="mb-4">
+                    {{ form.confirm_password.label(class="block text-gray-700") }}
+                    {{ form.confirm_password(class="form-input mt-1 block w-full bg-gray-100 border border-gray-300 rounded-md focus:ring-[#f9b233] focus:border-[#f9b233]") }}
+                    {% for error in form.confirm_password.errors %}
+                        <span class="text-red-500 text-sm">{{ error }}</span>
+                    {% endfor %}
+                </div>
+
+                <div class="mb-6">
+                    {{ form.submit(class="w-full bg-[#1b2d4f] text-white py-2 px-4 rounded-md hover:bg-[#b61823] transition-all") }}
+                </div>
+            </form>
+
+            <p class="text-center text-gray-600">Já tem uma conta?
+                <a href="{{ url_for('auth.login') }}" class="text-[#f9b233] hover:underline">Faça login</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>

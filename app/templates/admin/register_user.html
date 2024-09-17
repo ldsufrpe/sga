@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registrar Novo Usuário</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- FontAwesome para ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body class="bg-gray-100 text-gray-800">
+<nav class="bg-[#1b2d4f] p-4 shadow-md">
+        <div class="container mx-auto flex justify-between items-center">
+            <div class="text-white text-lg font-semibold">
+                <i class="fas fa-book mr-2"></i> SGA - Sistema de Gestão de Artigos
+            </div>
+            <div class="block md:hidden">
+                <button id="menuButton" class="text-white focus:outline-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"/>
+                    </svg>
+                </button>
+            </div>
+            <div id="menuItems" class="hidden md:flex space-x-4">
+                <a href="{{ url_for('main.painel') }}" class="text-white hover:text-[#f9b233]">
+                    <i class="fas fa-home mr-2 text-lg"></i> Painel
+                </a>
+                <a href="{{ url_for('main.submit_artigo') }}" class="text-white hover:text-[#f9b233]">
+                    <i class="fas fa-file-alt mr-2 text-lg"></i> Cadastro de Artigos
+                </a>
+                <a href="{{ url_for('main.dashboard') }}" class="text-white hover:text-[#f9b233]">
+                    <i class="fas fa-chart-bar mr-2 text-lg"></i> Dashboard
+                </a>
+                <a href="{{ url_for('main.listar_artigos') }}" class="text-white hover:text-[#f9b233]">
+                    <i class="fas fa-list mr-2 text-lg"></i> Listagem de Artigos
+                </a>
+
+                <!-- Se o usuário for admin, mostrar o menu de administração -->
+                {% if current_user.is_authenticated and current_user.is_admin %}
+                <div class="relative group">
+                    <!-- Botão de Administração -->
+                    <button class="text-white hover:text-[#f9b233] focus:outline-none">
+                        <i class="fas fa-cog mr-2 text-lg"></i> Administração
+                    </button>
+
+<!-- Dropdown para o menu de administração -->
+<div class="absolute left-0 top-full w-48 bg-white text-gray-800 rounded shadow-md hidden group-hover:flex flex-col z-10">
+    <a href="{{ url_for('admin.list_users') }}" class="block px-0.5 py-0.5 text-center hover:bg-gray-200">Gerenciar Usuários</a>
+</div>
+
+                </div>
+                {% endif %}
+
+                <!-- Exibir Logout se o usuário estiver autenticado -->
+                {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('auth.logout') }}" class="text-white hover:text-[#f9b233]">
+                        <i class="fas fa-sign-out-alt mr-2 text-lg"></i> Logout
+                    </a>
+                {% else %}
+                    <a href="{{ url_for('auth.login') }}" class="text-white hover:text-[#f9b233]">
+                        <i class="fas fa-sign-in-alt mr-2 text-lg"></i> Login
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+<div>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <ul class="flashes">
+      {% for category, message in messages %}
+        <li class="{{ category }}">{{ message }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
+
+</div>
+    <div class="container mx-auto mt-10">
+        <h1 class="text-3xl font-bold text-[#1b2d4f] text-center mb-8">Registrar Novo Usuário</h1>
+
+        <!-- Formulário de registro -->
+        <div class="max-w-md mx-auto bg-white p-8 rounded-lg shadow-md">
+            <form method="POST"  action="{{ url_for('admin.register_user') }}">
+                {{ form.hidden_tag() }}
+
+                <!-- Campo Nome -->
+{#                <div class="mb-4">#}
+{#                    <label class="block text-gray-700 text-sm font-bold mb-2" for="name">Nome</label>#}
+{#                    {{ form.name(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline") }}#}
+{#                </div>#}
+
+                <!-- Campo Email -->
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="email">Email</label>
+                    {{ form.email(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline") }}
+                </div>
+
+                <!-- Campo Senha -->
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="password">Senha</label>
+                    {{ form.password(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline") }}
+                </div>
+
+                <!-- Campo Confirmar Senha -->
+                <div class="mb-6">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="confirm_password">Confirmar Senha</label>
+                    {{ form.confirm_password(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline") }}
+                </div>
+
+                <!-- Botão de Registro -->
+                <div class="flex items-center justify-between">
+                    <button class="bg-[#f9b233] text-white font-bold py-2 px-4 rounded hover:bg-[#e69519] focus:outline-none focus:shadow-outline" type="submit">
+                        <i class="fas fa-user-plus mr-2"></i> Registrar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <footer class="bg-[#1b2d4f] py-2 px-4 text-center text-white text-sm fixed inset-x-0 bottom-0 mt-10">
+        <div class="container mx-auto flex justify-between items-center">
+            <p class="mb-0">Desenvolvido por
+                <a href="https://ldsufrpe.github.io/" class="text-[#f9b233] hover:underline" target="_blank">Leon Silva</a> © 2024
+            </p>
+            <a href="https://github.com/LeonSilva" target="_blank" class="text-white hover:text-[#f9b233]">
+                <i class="fab fa-github text-sm mr-1"></i> GitHub
+            </a>
+        </div>
+    </footer>
+
+</body>
+</html>

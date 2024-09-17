@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Artigo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+</head>
+
+<body class="bg-gray-100 text-gray-800">
+    <!-- Menu Responsivo -->
+    <nav class="bg-[#1b2d4f] p-4 shadow-md">
+        <div class="container mx-auto flex justify-between items-center">
+            <div class="text-white text-lg font-semibold">
+                <i class="fas fa-book mr-2"></i> SGA - Sistema de Gestão de Artigos
+            </div>
+            <div class="block md:hidden">
+                <button id="menuButton" class="text-white focus:outline-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"/>
+                    </svg>
+                </button>
+            </div>
+            <div id="menuItems" class="hidden md:flex space-x-4">
+                <a href="{{ url_for('main.painel') }}" class="text-white hover:text-[#f9b233]">
+                    <i class="fas fa-home mr-2 text-lg"></i> Painel
+                </a>
+                <a href="{{ url_for('main.submit_artigo') }}" class="text-white hover:text-[#f9b233]">
+                    <i class="fas fa-file-alt mr-2 text-lg"></i> Cadastro de Artigos
+                </a>
+                <a href="{{ url_for('main.dashboard') }}" class="text-white hover:text-[#f9b233]">
+                    <i class="fas fa-chart-bar mr-2 text-lg"></i> Dashboard
+                </a>
+                <a href="{{ url_for('main.listar_artigos') }}" class="text-white hover:text-[#f9b233]">
+                    <i class="fas fa-list mr-2 text-lg"></i> Listagem de Artigos
+                </a>
+
+                <!-- Se o usuário for admin, mostrar o menu de administração -->
+                {% if current_user.is_authenticated and current_user.is_admin %}
+                <div class="relative group">
+                    <!-- Botão de Administração -->
+                    <button class="text-white hover:text-[#f9b233] focus:outline-none">
+                        <i class="fas fa-cog mr-2 text-lg"></i> Administração
+                    </button>
+
+<!-- Dropdown para o menu de administração -->
+<div class="absolute left-0 top-full w-48 bg-white text-gray-800 rounded shadow-md hidden group-hover:flex flex-col z-10">
+    <a href="{{ url_for('admin.list_users') }}" class="block px-0.5 py-0.5 text-center hover:bg-gray-200">Gerenciar Usuários</a>
+</div>
+
+                </div>
+                {% endif %}
+
+                <!-- Exibir Logout se o usuário estiver autenticado -->
+                {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('auth.logout') }}" class="text-white hover:text-[#f9b233]">
+                        <i class="fas fa-sign-out-alt mr-2 text-lg"></i> Logout
+                    </a>
+                {% else %}
+                    <a href="{{ url_for('auth.login') }}" class="text-white hover:text-[#f9b233]">
+                        <i class="fas fa-sign-in-alt mr-2 text-lg"></i> Login
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+    <div class="container mx-auto p-6 max-w-5xl">
+        <h1 class="text-3xl font-bold mb-6 text-[#1b2d4f]">Editar Artigo</h1>
+        <form method="POST">
+            {{ form.hidden_tag() }}
+
+            <!-- Seção 1: Identificador de Objeto Digital (URL) -->
+            <fieldset class="border border-gray-200 p-4 rounded-lg mb-6">
+                <legend class="text-lg font-semibold mb-2 text-[#1b2d4f]">Identificador de Objeto Digital (URL)</legend>
+                <div class="mb-4">
+                    {{ form.doi.label(class="block text-sm font-medium text-gray-700") }}
+                    {{ form.doi(class="form-input mt-1 block w-full bg-white border border-gray-300 rounded-md shadow-sm focus:ring-[#f9b233] focus:border-[#f9b233]") }}
+                </div>
+            </fieldset>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                <!-- Seção 2: Dados do Artigo -->
+                <fieldset class="border border-gray-200 p-4 rounded-lg">
+                    <legend class="text-lg font-semibold mb-2 text-[#1b2d4f]">Dados do Artigo</legend>
+                    <div class="mb-4">
+                        {{ form.titulo.label(class="block text-sm font-medium text-gray-700") }}
+                        {{ form.titulo(class="form-input mt-1 block w-full bg-white border border-gray-300 rounded-md shadow-sm focus:ring-[#f9b233] focus:border-[#f9b233]") }}
+                    </div>
+                    <div class="mb-4">
+                        {{ form.ano.label(class="block text-sm font-medium text-gray-700") }}
+                        {{ form.ano(class="form-input mt-1 block w-full bg-white border border-gray-300 rounded-md shadow-sm focus:ring-[#f9b233] focus:border-[#f9b233]") }}
+                    </div>
+                    <div class="mb-4">
+                        {{ form.autores.label(class="block text-sm font-medium text-gray-700") }}
+                        {{ form.autores(class="form-input mt-1 block w-full bg-white border border-gray-300 rounded-md shadow-sm focus:ring-[#f9b233] focus:border-[#f9b233]") }}
+                    </div>
+                    <div class="mb-4">
+                        {{ form.subarea_id.label(class="block text-sm font-medium text-gray-700") }}
+                        {{ form.subarea_id(class="form-select mt-1 block w-full bg-white border border-gray-300 rounded-md shadow-sm focus:ring-[#f9b233] focus:border-[#f9b233]") }}
+                    </div>
+                    <div class="mb-4">
+                        {{ form.internacionalizacao.label(class="inline-flex items-center text-sm font-medium text-gray-700") }}
+                        {{ form.internacionalizacao(class="form-checkbox h-4 w-4 text-[#1b2d4f] focus:ring-[#f9b233] focus:border-[#f9b233] ml-2") }}
+                    </div>
+                </fieldset>
+
+                <!-- Seção 3: Dados da Revista -->
+                <fieldset class="border border-gray-200 p-4 rounded-lg">
+                    <legend class="text-lg font-semibold mb-2 text-[#1b2d4f]">Dados da Revista</legend>
+                    <div class="mb-4">
+                        {{ form.revista.label(class="block text-sm font-medium text-gray-700") }}
+                        {{ form.revista(class="form-input mt-1 block w-full bg-white border border-gray-300 rounded-md shadow-sm focus:ring-[#f9b233] focus:border-[#f9b233]") }}
+                    </div>
+                    <div class="mb-4">
+                        {{ form.issn.label(class="block text-sm font-medium text-gray-700") }}
+                        {{ form.issn(class="form-input mt-1 block w-full bg-white border border-gray-300 rounded-md shadow-sm focus:ring-[#f9b233] focus:border-[#f9b233]") }}
+                    </div>
+                    <div class="mb-4">
+                        {{ form.area_id.label(class="block text-sm font-medium text-gray-700") }}
+                        {{ form.area_id(class="form-select mt-1 block w-full bg-white border border-gray-300 rounded-md shadow-sm focus:ring-[#f9b233] focus:border-[#f9b233]") }}
+                    </div>
+                    <div class="mb-4">
+                        {{ form.classificacao.label(class="block text-sm font-medium text-gray-700") }}
+                        {{ form.classificacao(class="form-select mt-1 block w-full bg-white border border-gray-300 rounded-md shadow-sm focus:ring-[#f9b233] focus:border-[#f9b233]") }}
+                    </div>
+                    <div class="mb-4">
+                        {{ form.fator_impacto.label(class="block text-sm font-medium text-gray-700") }}
+                        {{ form.fator_impacto(class="form-input mt-1 block w-full bg-white border border-gray-300 rounded-md shadow-sm focus:ring-[#f9b233] focus:border-[#f9b233]") }}
+                    </div>
+                </fieldset>
+            </div>
+
+            <!-- Botões de Ação -->
+            <div class="flex space-x-4 mt-6">
+                <button type="submit" class="bg-[#1b2d4f] text-white font-bold py-2 px-4 rounded-md hover:bg-[#14223b] transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[#f9b233] focus:ring-opacity-50">Salvar</button>
+                <a href="{{ url_for('main.listar_artigos') }}" class="bg-gray-500 text-white font-bold py-2 px-4 rounded-md hover:bg-gray-600 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-50">Cancelar</a>
+            </div>
+        </form>
+    </div>
+    <script>
+        document.getElementById('menuButton').addEventListener('click', function() {
+            const menu = document.getElementById('menuItems');
+            menu.classList.toggle('hidden');
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Submissões de Artigos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-50 text-gray-800">
+    <div class="container mx-auto p-6">
+        <h1 class="text-2xl font-bold mb-6 text-gray-700">Submissões de Artigos</h1>
+        <div class="overflow-x-auto">
+            <table class="min-w-full bg-white border border-gray-200 rounded-lg">
+                <thead class="bg-gray-100 border-b border-gray-200">
+                    <tr>
+                        <th class="py-2 px-4 text-left text-sm font-medium text-gray-600">ID</th>
+                        <th class="py-2 px-4 text-left text-sm font-medium text-gray-600">DOI</th>
+                        <th class="py-2 px-4 text-left text-sm font-medium text-gray-600">Título</th>
+                        <th class="py-2 px-4 text-left text-sm font-medium text-gray-600">Ano</th>
+                        <th class="py-2 px-4 text-left text-sm font-medium text-gray-600">Revista</th>
+                        <th class="py-2 px-4 text-left text-sm font-medium text-gray-600">ISSN</th>
+                        <th class="py-2 px-4 text-left text-sm font-medium text-gray-600">Área Av.</th>
+                        <th class="py-2 px-4 text-left text-sm font-medium text-gray-600">Subárea</th>
+                        <th class="py-2 px-4 text-left text-sm font-medium text-gray-600">Autores</th>
+                        <th class="py-2 px-4 text-left text-sm font-medium text-gray-600">Internac.</th>
+                        <th class="py-2 px-4 text-left text-sm font-medium text-gray-600">Classif.</th>
+                        <th class="py-2 px-4 text-left text-sm font-medium text-gray-600">Impacto</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for artigo in artigos %}
+                    <tr class="border-b hover:bg-gray-50">
+                        <td class="py-2 px-4 text-sm text-gray-700">{{ artigo.id }}</td>
+                        <td class="py-2 px-4 text-sm text-gray-700">{{ artigo.doi }}</td>
+                        <td class="py-2 px-4 text-sm text-gray-700">{{ artigo.titulo }}</td>
+                        <td class="py-2 px-4 text-sm text-gray-700">{{ artigo.ano }}</td>
+                        <td class="py-2 px-4 text-sm text-gray-700">{{ artigo.revista }}</td>
+                        <td class="py-2 px-4 text-sm text-gray-700">{{ artigo.issn }}</td>
+                        <td class="py-2 px-4 text-sm text-gray-700">{{ artigo.area }}</td>
+                        <td class="py-2 px-4 text-sm text-gray-700">{{ artigo.subarea }}</td>
+                        <td class="py-2 px-4 text-sm text-gray-700">{{ artigo.autores }}</td>
+                        <td class="py-2 px-4 text-sm text-gray-700">{{ 'Sim' if artigo.internacionalizacao else 'Não' }}</td>
+                        <td class="py-2 px-4 text-sm text-gray-700">{{ artigo.classificacao }}</td>
+                        <td class="py-2 px-4 text-sm text-gray-700">{{ artigo.fator_impacto }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+
+</html>

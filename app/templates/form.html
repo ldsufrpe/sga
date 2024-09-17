@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro de Artigo</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+</head>
+
+
+<body class="bg-gray-100 text-gray-800">
+
+    <!-- Menu de navegação -->
+   <nav class="bg-[#1b2d4f] p-4 shadow-md">
+        <div class="container mx-auto flex justify-between items-center">
+            <div class="text-white text-lg font-semibold">
+                <i class="fas fa-book mr-2"> </i> SGA - Sistema de Gestão de Artigos
+            </div>
+            <div class="block md:hidden">
+                <button id="menuButton" class="text-white focus:outline-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"/>
+                    </svg>
+                </button>
+            </div>
+            <div id="menuItems" class="hidden md:flex space-x-4">
+                <a href="{{ url_for('main.painel') }}" class="text-white hover:text-[#f9b233]">
+                    <i class="fas fa-home mr-2 text-lg"></i> Painel
+                </a>
+                <a href="{{ url_for('main.submit_artigo') }}" class="text-white hover:text-[#f9b233]">
+                    <i class="fas fa-file-alt mr-2 text-lg"></i> Cadastro de Artigos
+                </a>
+                <a href="{{ url_for('main.dashboard') }}" class="text-white hover:text-[#f9b233]">
+                    <i class="fas fa-chart-bar mr-2 text-lg"></i> Dashboard
+                </a>
+                <a href="{{ url_for('main.listar_artigos') }}" class="text-white hover:text-[#f9b233]">
+                    <i class="fas fa-list mr-2 text-lg"></i> Listagem de Artigos
+                </a>
+
+                <!-- Se o usuário for admin, mostrar o menu de administração -->
+                {% if current_user.is_authenticated and current_user.is_admin %}
+                <div class="relative group">
+                    <!-- Botão de Administração -->
+                    <button class="text-white hover:text-[#f9b233] focus:outline-none">
+                        <i class="fas fa-cog mr-2 text-lg"></i> Administração
+                    </button>
+
+<!-- Dropdown para o menu de administração -->
+<div class="absolute left-0 top-full w-48 bg-white text-gray-800 rounded shadow-md hidden group-hover:flex flex-col z-10">
+    <a href="{{ url_for('admin.list_users') }}" class="block px-0.5 py-0.5 text-center hover:bg-gray-200">Gerenciar Usuários</a>
+</div>
+
+                </div>
+                {% endif %}
+
+                <!-- Exibir Logout se o usuário estiver autenticado -->
+                {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('auth.logout') }}" class="text-white hover:text-[#f9b233]">
+                        <i class="fas fa-sign-out-alt mr-2 text-lg"></i> Logout
+                    </a>
+                {% else %}
+                    <a href="{{ url_for('auth.login') }}" class="text-white hover:text-[#f9b233]">
+                        <i class="fas fa-sign-in-alt mr-2 text-lg"></i> Login
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+
+
+    <div class="w-full max-w-5xl bg-white rounded-lg shadow-lg p-8">
+
+<h1 class="text-3xl font-bold mb-8 text-left text-[#1b2d4f]">Cadastrar Artigo</h1>
+
+        <!-- Alerta de sucesso -->
+        {% if success_message %}
+        <div class="bg-green-500 border-l-4 border-green-700 text-white p-4 mb-6">
+            {{ success_message }}
+        </div>
+        {% endif %}
+
+        <form method="post" action="{{ url_for('main.submit_artigo') }}" novalidate>
+            {{ form.hidden_tag() }}
+
+            <!-- Seção 1: Identificador de Objeto Digital (URL) -->
+            <fieldset class="border border-gray-200 p-6 rounded-lg mb-8">
+                <legend class="text-lg font-semibold mb-4 text-[#1b2d4f]">Identificador de Objeto Digital (URL)</legend>
+                <div class="mb-2">
+                    <label for="doi" class="block text-sm font-medium text-gray-700">{{ form.doi.label }}</label>
+                    {{ form.doi(size=50, class_="form-input mt-1 block w-full bg-gray-100 border border-gray-300 rounded-md shadow-sm focus:ring-[#f9b233] focus:border-[#f9b233]") }}
+                    {% for error in form.doi.errors %}
+                    <span class="text-[#b61823] text-xs">{{ error }}</span>
+                    {% endfor %}
+                </div>
+            </fieldset>
+
+            <!-- Layout para Seções 2 e 3: Grid 2 colunas -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Seção 2: Dados do Artigo -->
+                <fieldset class="border border-gray-200 p-6 rounded-lg">
+                    <legend class="text-lg font-semibold mb-4 text-[#1b2d4f]">Dados do Artigo</legend>
+                    <div class="mb-2">
+                        <label for="titulo" class="block text-sm font-medium text-gray-700">{{ form.titulo.label }}</label>
+                        {{ form.titulo(size=50, class_="form-input mt-1 block w-full bg-gray-100 border border-gray-300 rounded-md shadow-sm focus:ring-[#f9b233] focus:border-[#f9b233]") }}
+                        {% for error in form.titulo.errors %}
+                        <span class="text-[#b61823] text-xs">{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                    <div class="mb-2">
+                        <label for="ano" class="block text-sm font-medium text-gray-700">{{ form.ano.label }}</label>
+                        {{ form.ano(size=20, class_="form-input mt-1 block w-full bg-gray-100 border border-gray-300 rounded-md shadow-sm focus:ring-[#f9b233] focus:border-[#f9b233]") }}
+                        {% for error in form.ano.errors %}
+                        <span class="text-[#b61823] text-xs">{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                    <div class="mb-2">
+                        <label for="autores" class="block text-sm font-medium text-gray-700">{{ form.autores.label }}</label>
+                        {{ form.autores(size=50, class_="form-input mt-1 block w-full bg-gray-100 border border-gray-300 rounded-md shadow-sm focus:ring-[#f9b233] focus:border-[#f9b233]") }}
+                        {% for error in form.autores.errors %}
+                        <span class="text-[#b61823] text-xs">{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                    <div class="mb-2">
+                        <label for="subarea_id" class="block text-sm font-medium text-gray-700">{{ form.subarea_id.label }}</label>
+                        {{ form.subarea_id(class_="form-select mt-1 block w-full bg-gray-100 border border-gray-300 rounded-md shadow-sm focus:ring-[#f9b233] focus:border-[#f9b233]") }}
+                        {% for error in form.subarea_id.errors %}
+                        <span class="text-[#b61823] text-xs">{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                    <div class="mb-2">
+                        <label for="internacionalizacao" class="block text-sm font-medium text-gray-700">{{ form.internacionalizacao.label }}</label>
+                        {{ form.internacionalizacao(class_="form-checkbox mt-1 block text-[#1b2d4f] focus:ring-[#f9b233]") }}
+                        {% for error in form.internacionalizacao.errors %}
+                        <span class="text-[#b61823] text-xs">{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                </fieldset>
+
+                <!-- Seção 3: Dados da Revista -->
+                <fieldset class="border border-gray-200 p-6 rounded-lg">
+                    <legend class="text-lg font-semibold mb-4 text-[#1b2d4f]">Dados da Revista</legend>
+                    <div class="mb-2">
+                        <label for="revista" class="block text-sm font-medium text-gray-700">{{ form.revista.label }}</label>
+                        {{ form.revista(size=50, class_="form-input mt-1 block w-full bg-gray-100 border border-gray-300 rounded-md shadow-sm focus:ring-[#f9b233] focus:border-[#f9b233]") }}
+                        {% for error in form.revista.errors %}
+                        <span class="text-[#b61823] text-xs">{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                    <div class="mb-2">
+                        <label for="issn" class="block text-sm font-medium text-gray-700">{{ form.issn.label }}</label>
+                        {{ form.issn(size=20, class_="form-input mt-1 block w-full bg-gray-100 border border-gray-300 rounded-md shadow-sm focus:ring-[#f9b233] focus:border-[#f9b233]") }}
+                        {% for error in form.issn.errors %}
+                        <span class="text-[#b61823] text-xs">{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                    <div class="mb-2">
+                        <label for="area_id" class="block text-sm font-medium text-gray-700">{{ form.area_id.label }}</label>
+                        {{ form.area_id(class_="form-select mt-1 block w-full bg-gray-100 border border-gray-300 rounded-md shadow-sm focus:ring-[#f9b233] focus:border-[#f9b233]") }}
+                        {% for error in form.area_id.errors %}
+                        <span class="text-[#b61823] text-xs">{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                    <div class="mb-2">
+                        <label for="classificacao" class="block text-sm font-medium text-gray-700">{{ form.classificacao.label }}</label>
+                        {{ form.classificacao(class_="form-select mt-1 block w-full bg-gray-100 border border-gray-300 rounded-md shadow-sm focus:ring-[#f9b233] focus:border-[#f9b233]") }}
+                        {% for error in form.classificacao.errors %}
+                        <span class="text-[#b61823] text-xs">{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                    <div class="mb-2">
+                        <label for="fator_impacto" class="block text-sm font-medium text-gray-700">{{ form.fator_impacto.label }}</label>
+                        {{ form.fator_impacto(size=20, class_="form-input mt-1 block w-full bg-gray-100 border border-gray-300 rounded-md shadow-sm focus:ring-[#f9b233] focus:border-[#f9b233]") }}
+                        {% for error in form.fator_impacto.errors %}
+                        <span class="text-[#b61823] text-xs">{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                </fieldset>
+            </div>
+
+            <!-- Botão de envio -->
+            <div class="mt-6 text-right">
+    <button type="submit" class="bg-[#f9b233] text-white font-bold py-3 px-6 rounded-lg hover:bg-[#1b2d4f] transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[#f9b233] focus:ring-opacity-50">
+        Enviar
+    </button>
+</div>
+
+        </form>
+    </div>
+
+    <!-- Inclusão do JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+    <script src="{{ url_for('static', filename='js/form.js') }}"></script>
+
+</body>
+</html>

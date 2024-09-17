@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Usuários</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+    <!-- FontAwesome para os ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+</head>
+<body class="bg-gray-100 text-gray-800">
+  <nav class="bg-[#1b2d4f] p-4 shadow-md">
+        <div class="container mx-auto flex justify-between items-center">
+            <div class="text-white text-lg font-semibold">
+                <i class="fas fa-book mr-2"></i> SGA - Sistema de Gestão de Artigos
+            </div>
+            <div class="block md:hidden">
+                <button id="menuButton" class="text-white focus:outline-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"/>
+                    </svg>
+                </button>
+            </div>
+            <div id="menuItems" class="hidden md:flex space-x-4">
+                <a href="{{ url_for('main.painel') }}" class="text-white hover:text-[#f9b233]">
+                    <i class="fas fa-home mr-2 text-lg"></i> Painel
+                </a>
+                <a href="{{ url_for('main.submit_artigo') }}" class="text-white hover:text-[#f9b233]">
+                    <i class="fas fa-file-alt mr-2 text-lg"></i> Cadastro de Artigos
+                </a>
+                <a href="{{ url_for('main.dashboard') }}" class="text-white hover:text-[#f9b233]">
+                    <i class="fas fa-chart-bar mr-2 text-lg"></i> Dashboard
+                </a>
+                <a href="{{ url_for('main.listar_artigos') }}" class="text-white hover:text-[#f9b233]">
+                    <i class="fas fa-list mr-2 text-lg"></i> Listagem de Artigos
+                </a>
+
+                <!-- Se o usuário for admin, mostrar o menu de administração -->
+                {% if current_user.is_authenticated and current_user.is_admin %}
+                <div class="relative group">
+                    <!-- Botão de Administração -->
+                    <button class="text-white hover:text-[#f9b233] focus:outline-none">
+                        <i class="fas fa-cog mr-2 text-lg"></i> Administração
+                    </button>
+
+<!-- Dropdown para o menu de administração -->
+<div class="absolute left-0 top-full w-48 bg-white text-gray-800 rounded shadow-md hidden group-hover:flex flex-col z-10">
+    <a href="{{ url_for('admin.list_users') }}" class="block px-0.5 py-0.5 text-center hover:bg-gray-200">Gerenciar Usuários</a>
+</div>
+
+                </div>
+                {% endif %}
+
+                <!-- Exibir Logout se o usuário estiver autenticado -->
+                {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('auth.logout') }}" class="text-white hover:text-[#f9b233]">
+                        <i class="fas fa-sign-out-alt mr-2 text-lg"></i> Logout
+                    </a>
+                {% else %}
+                    <a href="{{ url_for('auth.login') }}" class="text-white hover:text-[#f9b233]">
+                        <i class="fas fa-sign-in-alt mr-2 text-lg"></i> Login
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+<div class="container mx-auto mt-10">
+    <!-- Exibição de Mensagens Flash com estilo personalizado -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="mb-4">
+          {% for category, message in messages %}
+            <div class="p-4 mb-4 text-sm rounded-lg shadow-lg
+                        {% if category == 'success' %}
+                        bg-[#d4edda] text-[#155724] border-l-4 border-[#28a745]
+                        {% elif category == 'error' %}
+                        bg-[#f8d7da] text-[#721c24] border-l-4 border-[#dc3545]
+                        {% elif category == 'info' %}
+                        bg-[#d1ecf1] text-[#0c5460] border-l-4 border-[#17a2b8]
+                        {% else %}
+                        bg-[#fff3cd] text-[#856404] border-l-4 border-[#ffc107]
+                        {% endif %}">
+              {{ message }}
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <!-- Título e botão para adicionar novo usuário -->
+    <h1 class="text-3xl font-bold mb-8 text-left text-[#1b2d4f]">Usuários do Sistema</h1>
+
+    {% if current_user.is_admin %}
+    <div class="text-right mb-4">
+        <a href="{{ url_for('admin.register_user') }}" class="bg-[#f9b233] text-white py-2 px-4 rounded hover:bg-[#1b2d4f] text-sm" title="Adicionar Novo Usuário">
+            <i class="fas fa-user-plus mr-2"></i>
+        </a>
+    </div>
+    {% endif %}
+
+    <!-- Tabela de usuários -->
+    <div class="overflow-x-auto">
+        <table class="min-w-full bg-white border border-gray-300 shadow-md rounded-lg">
+            <thead>
+                <tr class="bg-[#1b2d4f] text-white text-left">
+                    <th class="py-2 px-4">Email</th>
+                    <th class="py-2 px-4">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr class="border-t border-gray-200">
+                    <td class="py-2 px-4">{{ user.email }}</td>
+                    <td class="py-2 px-4">
+                        <a href="{{ url_for('admin.reset_password', user_id=user.id) }}" class="text-blue-500 hover:text-blue-700 mr-4">
+                            <i class="fas fa-key"></i> Redefinir Senha
+                        </a>
+                        <a href="{{ url_for('admin.delete_user', user_id=user.id) }}" class="text-red-500 hover:text-red-700" onclick="return confirm('Tem certeza que deseja excluir?')">
+                            <i class="fas fa-trash-alt"></i> Excluir
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+    <footer class="bg-[#1b2d4f] py-2 px-4 text-center text-white text-sm fixed inset-x-0 bottom-0 mt-10">
+        <div class="container mx-auto flex justify-between items-center">
+            <p class="mb-0">Desenvolvido por
+                <a href="https://ldsufrpe.github.io/" class="text-[#f9b233] hover:underline" target="_blank">Leon Silva</a> © 2024
+            </p>
+            <a href="https://github.com/LeonSilva" target="_blank" class="text-white hover:text-[#f9b233]">
+                <i class="fab fa-github text-sm mr-1"></i> GitHub
+            </a>
+        </div>
+    </footer>
+
+</body>
+</html>
