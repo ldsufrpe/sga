@@ -1,20 +1,16 @@
-from flask import Blueprint, render_template, redirect, url_for, flash, request
-from app import db, limiter
-from app.forms import LoginForm, RegisterForm
-from app.models import User
-from werkzeug.security import generate_password_hash, check_password_hash
+from flask import Blueprint
+from flask import render_template, flash, request
+from app import limiter
+from app.forms import LoginForm
+from werkzeug.security import check_password_hash
 from flask_login import login_user, logout_user, login_required
-from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 import logging
-
+from flask import redirect, url_for
+from flask_login import current_user
 
 # Rota de registro
-from flask import render_template, redirect, url_for, flash
-from werkzeug.security import generate_password_hash
-from app import db
 from app.models import User
-from app.forms import RegisterForm
 from app.routes.routes import main_bp
 
 # Criar o blueprint
@@ -24,11 +20,6 @@ auth_bp = Blueprint('auth', __name__)
 def log_login_attempt():
     if request.endpoint == 'auth.login' and request.method == 'POST':
         logging.info(f"Tentativa de login para o usuário: {request.form.get('email')} do IP: {request.remote_addr}")
-
-
-
-
-
 
 
 # Rota de login
@@ -72,8 +63,6 @@ def logout():
     flash('Você foi desconectado!', 'info')
     return redirect(url_for('auth.login'))
 
-from flask import redirect, url_for
-from flask_login import current_user
 
 # Rota principal que redireciona para o login se o usuário não estiver autenticado
 @main_bp.route('/')

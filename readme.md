@@ -1,56 +1,86 @@
-# Instalação
+# SGA - Sistema de Gestão de Artigos
 
-python3 -m venv venv
-source venv/bin/activate  # No Windows, use venv\Scripts\activate
-pip install -r requirements.txt
+**SGA** (Sistema de Gestão de Artigos) é uma aplicação web desenvolvida em **Flask** para a gestão de artigos científicos. O sistema oferece funcionalidades para cadastro, listagem, análise de dados e geração de relatórios em PDF de artigos, além de gerenciamento de usuários com permissões diferenciadas para administradores.
 
+## Funcionalidades Principais
 
-#### Iniciar Banco
+### 1. Autenticação e Controle de Acesso
+- **Login e Logout**: Usuários podem se autenticar no sistema.
+- **Controle de Acesso**: Diferenciação de permissões entre usuários comuns e administradores.
+- **Administração**: Administradores têm acesso a funcionalidades exclusivas, como o gerenciamento e cadastro de usuários.
 
-flask db init
-flask db migrate -m "Initial migration."
-flask db upgrade
+### 2. Cadastro de Artigos
+- **Formulário de Cadastro**: Submissão de artigos com informações detalhadas como título, ano, autores, classificação Qualis, ISSN, e fator de impacto.
+- **Validação de Formulário**: Mensagens de erro são exibidas em caso de campos inválidos.
 
+### 3. Listagem de Artigos
+- **Tabela de Artigos**: Visualização de todos os artigos cadastrados no sistema.
+- **Exportação de Dados**: Em breve, será possível exportar a listagem de artigos para **CSV** e **JSON**.
 
-#### Ajuste
-Como isso deveria ser feito:
+### 4. Dashboard Analítico
+- **Análise de Dados**: Dashboard que exibe gráficos e métricas principais dos artigos, incluindo total de artigos, média de fator de impacto e distribuição por ano e classificação Qualis.
+- **Gráficos Interativos**: Utiliza **Chart.js** para gráficos de linha, barra e pizza.
 
-    Usar Relacionamentos:
-        A abordagem ideal é definir um relacionamento 
-entre Artigo e Area nos modelos do SQLAlchemy, como
-discutido anteriormente. Isso permite que você acesse
-artigo.area.nome diretamente no template sem a necessidade 
-de consultas adicionais para cada artigo.
+### 5. Geração de Relatórios em PDF
+- **Relatórios em PDF**: Geração de relatórios com gráficos e dados diretamente do dashboard, utilizando **ReportLab** gerar o PDF.
 
-Exemplo:
-class Artigo(db.Model):
-    # ... outros campos ...
-    area_id = db.Column(db.Integer, db.ForeignKey('area.id'))
-    area = db.relationship('Area', backref='artigos')
+### 6. Gestão de Usuários
+- **Listagem de Usuários**: Administradores podem visualizar e gerenciar os usuários cadastrados.
+- **Cadastro de Novos Usuários**: Administradores podem adicionar novos usuários via um formulário dedicado.
+- **Ações de Administração**: Redefinir senhas e excluir usuários.
 
-## Dashbord
-Graficos que compare as areas e subares 
-seletor de subareas
+### 7. Feedback Visual com Toastr
+- **Mensagens Dinâmicas**: Toastr é usado para exibir notificações de sucesso, erro, ou informações, criando uma experiência mais fluida para o usuário.
 
+---
 
-##Dashboard com Opções de Exportação de Gráficos:
-Descrição: Adicionar a capacidade de exportar gráficos 
-do dashboard como imagens (PNG, JPEG) ou como
-relatórios em PDF.
-
-## Exportação de Dados
-
-Atualmente, seu sistema exporta artigos em CSV, XLSX e JSON. Se você desejar, podemos melhorar a interface para permitir exportações personalizadas, como selecionar quais colunas incluir na exportação
-
-usuario:
-
-lds.mat@gmail.com
-12345678
-
-leon.silva@ufrpe.br (admin)
-123456
+## Instalação
 
 
+## Como Usar
 
-    Adicionar o Redis no Heroku (como mencionado anteriormente).
-    Usar a variável REDIS_URL para configurar o Flask-Limiter com Redis no Heroku.
+### Cadastro de Usuários
+- **Usuários comuns** podem se registrados diretamente por um usuário admin do sistema.
+- **Administradores** têm controle completo sobre o sistema, podendo cadastrar, editar e remover usuários e artigos.
+
+### Geração de Relatórios
+- Acesse o **dashboard** e clique no botão **"Baixar Relatório em PDF"** para gerar relatórios com gráficos e métricas principais.
+
+### Administração de Usuários
+- No menu de administração, gerencie usuários com opções para redefinir senhas e excluir contas.
+
+---
+
+## Tecnologias Utilizadas
+
+- **Flask**: Framework principal para o desenvolvimento da aplicação web.
+- **TailwindCSS**: Utilizado para estilização moderna e responsiva.
+- **Plotly**: Gráficos para gerar relatórios de análise de dados no dashboard.
+- **Chart.js**: Gráficos interativos para análise de dados no dashboard.
+- **Toastr**: Notificações dinâmicas para feedback visual.
+- **SQLite**: Banco de dados padrão para armazenamento dos dados (pode ser substituído por outro banco de dados relacional).
+
+---
+
+## Telas do Sistema de Gestão de Artigos
+
+Aqui estão prévias das telas principais do SGA:
+
+![Painel do Sistema](/assets/img/painel.png)  <!-- Substitua o caminho para o arquivo de imagem correto -->
+
+![Dashboard](/assets/img/dashboard.png)  <!-- Substitua o caminho para o arquivo de imagem correto -->
+![Gerenciamento de Artigos](/assets/img/gerenciamento.png)  <!-- Substitua o caminho para o arquivo de imagem correto -->
+![Formulário](/assets/img/formulario_cadastro.png)  <!-- Substitua o caminho para o arquivo de imagem correto -->
+
+---
+
+## Contribuição
+
+Contribuições são bem-vindas! Sinta-se à vontade para abrir **issues** ou enviar **pull requests**.
+
+---
+
+## Licença
+
+Este projeto está licenciado sob a **MIT License**. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
+

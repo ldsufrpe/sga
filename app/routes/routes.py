@@ -1,22 +1,28 @@
-import json
-import pprint
 import unicodedata
 from datetime import datetime
 
-from flask import Blueprint, render_template, request, flash, redirect, url_for, make_response,jsonify
-from six import print_
+from flask import Blueprint, request, flash, redirect
 from flask_login import login_required
+from flask_paginate import Pagination, get_page_parameter
+from flask import render_template, url_for, jsonify
+from flask import send_file
 from app import db
-#from app.models import Artigo, Autor, VariacaoAutor
 from app.forms import ArtigoForm
-import requests
 import re
 import backoff
 from app.models import Artigo, Area, Subarea  # Certifique-se de que Area e Subarea estão sendo importados aqui
+import requests
+import base64
 
+import io
+import csv
+import json
+import openpyxl  # Para exportar XLSX
+
+# Criar o blueprint
 main_bp = Blueprint('main', __name__)
 
-from flask import jsonify
+
 @main_bp.route('/painel')
 @login_required
 def painel():
@@ -199,7 +205,7 @@ def get_classificacao():
         return jsonify({'error': str(e)}), 500
 
 #################### Rotas de CRUD ###################
-from flask_paginate import Pagination, get_page_parameter
+
 @main_bp.route('/artigos', methods=['GET'])
 @login_required
 def listar_artigos():
@@ -297,11 +303,7 @@ def deletar_artigo(id):
 
 
 ######################### Exportar CSV ######################
-from flask import send_file
-import io
-import csv
-import json
-import openpyxl  # Para exportar XLSX
+
 
 @main_bp.route('/exportar_artigos', methods=['GET'])
 @login_required
@@ -574,68 +576,49 @@ def dashboard_data():
 
     return jsonify(dados_graficos)
 
-from flask import render_template, make_response
-import requests
 
-from flask import render_template, make_response
-import requests
+# def image_to_base64(image_path):
+#     with open(image_path, "rb") as image_file:
+#         return base64.b64encode(image_file.read()).decode('utf-8')
 
-from flask import render_template, make_response, url_for, jsonify
-import requests
-
-
-import base64
-import os
-
-def image_to_base64(image_path):
-    with open(image_path, "rb") as image_file:
-        return base64.b64encode(image_file.read()).decode('utf-8')
-
-
-
-
-
-import base64
-import os
-
-@main_bp.route('/save-chart', methods=['POST'])
-def save_chart():
-    data = request.get_json()
-    chart_id = data['chartId']
-    image_data = data['imageData'].split(',')[1]  # Remove o prefixo base64
-
-    # Verificar o conteúdo base64
-    print(f"Recebendo imagem do gráfico: {chart_id}")
-    print(f"Primeiros 50 caracteres da imagem base64: {image_data[:50]}")
-
-    # Decodificar a imagem base64
-    try:
-        image_bytes = base64.b64decode(image_data)
-    except Exception as e:
-        print(f"Erro na decodificação da imagem: {e}")
-        return jsonify({"error": f"Falha na decodificação da imagem: {e}"}), 500
-
-    # Definir o caminho do diretório 'static/img'
-    img_dir = os.path.join('static', 'img')
-
-    # Criar o diretório 'static/img' se ele não existir
-    if not os.path.exists(img_dir):
-        os.makedirs(img_dir)
-        print(f"Diretório 'static/img' criado.")
-
-    # Tentar salvar a imagem no servidor
-    file_path = os.path.join(img_dir, f'{chart_id}.png')
-    print(f"Tentando salvar a imagem em: {file_path}")
-
-    try:
-        with open(file_path, 'wb') as f:
-            f.write(image_bytes)
-        print(f"Imagem salva com sucesso: {file_path}")
-    except Exception as e:
-        print(f"Erro ao salvar a imagem: {e}")
-        return jsonify({"error": f"Falha ao salvar a imagem: {e}"}), 500
-
-    return jsonify({"message": "Imagem salva com sucesso!", "file_path": file_path})
+# @main_bp.route('/save-chart', methods=['POST'])
+# def save_chart():
+#     data = request.get_json()
+#     chart_id = data['chartId']
+#     image_data = data['imageData'].split(',')[1]  # Remove o prefixo base64
+#
+#     # Verificar o conteúdo base64
+#     # print(f"Recebendo imagem do gráfico: {chart_id}")
+#     # print(f"Primeiros 50 caracteres da imagem base64: {image_data[:50]}")
+#
+#     # Decodificar a imagem base64
+#     try:
+#         image_bytes = base64.b64decode(image_data)
+#     except Exception as e:
+#         print(f"Erro na decodificação da imagem: {e}")
+#         return jsonify({"error": f"Falha na decodificação da imagem: {e}"}), 500
+#
+#     # Definir o caminho do diretório 'static/img'
+#     img_dir = os.path.join('static', 'img')
+#
+#     # Criar o diretório 'static/img' se ele não existir
+#     if not os.path.exists(img_dir):
+#         os.makedirs(img_dir)
+#         print(f"Diretório 'static/img' criado.")
+#
+#     # Tentar salvar a imagem no servidor
+#     file_path = os.path.join(img_dir, f'{chart_id}.png')
+#     # print(f"Tentando salvar a imagem em: {file_path}")
+#
+#     try:
+#         with open(file_path, 'wb') as f:
+#             f.write(image_bytes)
+#         print(f"Imagem salva com sucesso: {file_path}")
+#     except Exception as e:
+#         print(f"Erro ao salvar a imagem: {e}")
+#         return jsonify({"error": f"Falha ao salvar a imagem: {e}"}), 500
+#
+#     return jsonify({"message": "Imagem salva com sucesso!", "file_path": file_path})
 
 
 @main_bp.route('/flash_test')

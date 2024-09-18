@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, url_for, flash, request, abort
+from flask import Blueprint, render_template, flash, request
 from flask_login import login_required, current_user
 
 from app.forms import RegisterForm
@@ -9,6 +9,15 @@ from werkzeug.security import generate_password_hash
 from functools import wraps
 from flask import abort, redirect, url_for
 from flask_login import current_user
+
+import plotly.graph_objects as go
+import io
+from flask import send_file
+from reportlab.lib.pagesizes import letter
+from reportlab.platypus import SimpleDocTemplate, Image, Paragraph, Spacer
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.lib.units import inch
+
 # Definir o Blueprint admin
 admin_bp = Blueprint('admin', __name__, template_folder='templates/admin')
 
@@ -112,37 +121,6 @@ def register_user():
         print(form.errors)  # Verifique os erros do formulário no console
 
     return render_template('admin/register_user.html', form=form)
-
-
-import matplotlib.pyplot as plt
-import io
-from matplotlib.ticker import MaxNLocator
-from flask import send_file
-from reportlab.lib.pagesizes import letter
-from reportlab.platypus import SimpleDocTemplate, Image, Paragraph, Spacer
-from reportlab.lib.styles import getSampleStyleSheet
-from reportlab.lib.units import inch
-import requests
-
-import plotly.graph_objects as go
-import io
-from flask import send_file
-from reportlab.lib.pagesizes import letter
-from reportlab.platypus import SimpleDocTemplate, Image, Paragraph, Spacer
-from reportlab.lib.styles import getSampleStyleSheet
-from reportlab.lib.units import inch
-import requests
-import os
-
-import plotly.graph_objects as go
-import io
-from flask import send_file
-from reportlab.lib.pagesizes import letter
-from reportlab.platypus import SimpleDocTemplate, Image, Paragraph, Spacer
-from reportlab.lib.styles import getSampleStyleSheet
-from reportlab.lib.units import inch
-from reportlab.pdfgen import canvas
-import requests
 
 
 # Função para buscar dados do dashboard
@@ -294,7 +272,7 @@ def add_header_footer(canvas, doc):
     # Cabeçalho
     canvas.saveState()
     canvas.setFont('Helvetica-Bold', 10)
-    canvas.drawString(inch, 11*inch, "Relatório de Artigos Científicos")
+    canvas.drawString(inch, 11*inch, "Relatório de Dados dos Artigos")
 
     # Rodapé - Página e Data
     canvas.setFont('Helvetica', 8)
@@ -325,7 +303,7 @@ def generate_pdf_with_dynamic_charts(area_id=None, subarea_id=None, ano_inicio=N
     elements = []  # Definir a lista de elementos aqui
 
     # Título do Relatório
-    elements.append(Paragraph("Relatório do Dashboard de Artigos Científicos", styles['Title']))
+    elements.append(Paragraph("Relatório de Dados dos Artigos (Dashboard)", styles['Title']))
     elements.append(Spacer(1, 0.5*inch))
 
     # Fetch dos dados da API com os filtros aplicados

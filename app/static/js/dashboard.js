@@ -18,34 +18,34 @@ document.addEventListener("DOMContentLoaded", function() {
     const totalArtigosFiltradosElem = document.getElementById('totalArtigosFiltrados');
     const mediaFatorImpactoFiltradaElem = document.getElementById('mediaFatorImpactoFiltrada');
     // Função para salvar os graficos
-    function saveChartAsImage(chart, chartId) {
-    const originalWidth = chart.width;
-    const originalHeight = chart.height;
-
-    // Temporariamente aumentar o tamanho do canvas para melhorar a qualidade da exportação
-    chart.resize(2024, 2024);  // Aumente o tamanho conforme necessário
-
-    setTimeout(function() {
-        const image = chart.toBase64Image();
-
-        // Enviar a imagem para o servidor
-        fetch('/save-chart', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                chartId: chartId,
-                imageData: image
-            })
-        }).then(response => response.json())
-          .then(data => {
-              console.log('Imagem salva no servidor:', data);
-              // Restaurar o tamanho original do gráfico
-              chart.resize(originalWidth, originalHeight);
-          });
-    }, 1000);  // Um pequeno atraso para garantir que o gráfico seja renderizado
-}
+//     function saveChartAsImage(chart, chartId) {
+//     const originalWidth = chart.width;
+//     const originalHeight = chart.height;
+//
+//     // Temporariamente aumentar o tamanho do canvas para melhorar a qualidade da exportação
+//     chart.resize(2024, 2024);  // Aumente o tamanho conforme necessário
+//
+//     setTimeout(function() {
+//         const image = chart.toBase64Image();
+//
+//         // Enviar a imagem para o servidor
+//         fetch('/save-chart', {
+//             method: 'POST',
+//             headers: {
+//                 'Content-Type': 'application/json',
+//             },
+//             body: JSON.stringify({
+//                 chartId: chartId,
+//                 imageData: image
+//             })
+//         }).then(response => response.json())
+//           .then(data => {
+//               console.log('Imagem salva no servidor:', data);
+//               // Restaurar o tamanho original do gráfico
+//               chart.resize(originalWidth, originalHeight);
+//           });
+//     }, 1000);  // Um pequeno atraso para garantir que o gráfico seja renderizado
+// }
 
 
     // Inicialização dos gráficos
@@ -61,7 +61,7 @@ document.addEventListener("DOMContentLoaded", function() {
             }]
         }
     });
-saveChartAsImage(chart1, 'chart1');
+// saveChartAsImage(chart1, 'chart1');
     const ctx2 = document.getElementById('chart2').getContext('2d');
     const chart2 = new Chart(ctx2, {
         type: 'bar',
@@ -74,7 +74,7 @@ saveChartAsImage(chart1, 'chart1');
             }]
         }
     });
-    saveChartAsImage(chart2, 'chart2');
+    // saveChartAsImage(chart2, 'chart2');
     const ctx3 = document.getElementById('chart3').getContext('2d');
     const chart3 = new Chart(ctx3, {
         type: 'bar',
@@ -87,7 +87,7 @@ saveChartAsImage(chart1, 'chart1');
             }]
         }
     });
-    saveChartAsImage(chart3, 'chart3');
+    // saveChartAsImage(chart3, 'chart3');
     const ctx4 = document.getElementById('chart4').getContext('2d');
     const chart4 = new Chart(ctx4, {
         type: 'bar',
@@ -100,7 +100,7 @@ saveChartAsImage(chart1, 'chart1');
             }]
         }
     });
-    saveChartAsImage(chart4, 'chart4');
+    // saveChartAsImage(chart4, 'chart4');
     const ctx5 = document.getElementById('chart5').getContext('2d');
     const chart5 = new Chart(ctx5, {
         type: 'line',
@@ -116,7 +116,7 @@ saveChartAsImage(chart1, 'chart1');
             }]
         }
     });
-saveChartAsImage(chart5, 'chart5');
+// saveChartAsImage(chart5, 'chart5');
     const ctx6 = document.getElementById('chart6').getContext('2d');
     const chart6 = new Chart(ctx6, {
         type: 'pie',
@@ -145,7 +145,7 @@ saveChartAsImage(chart5, 'chart5');
         },
         plugins: [ChartDataLabels]
     });
-saveChartAsImage(chart6, 'chart6');
+// saveChartAsImage(chart6, 'chart6');
     const ctx7 = document.getElementById('chart7').getContext('2d');
     const chart7 = new Chart(ctx7, {
         type: 'pie',
@@ -174,7 +174,7 @@ saveChartAsImage(chart6, 'chart6');
         },
         plugins: [ChartDataLabels]
     });
-    saveChartAsImage(chart7, 'chart7');
+    // saveChartAsImage(chart7, 'chart7');
     const ctx8 = document.getElementById('chart8').getContext('2d');
     const chart8 = new Chart(ctx8, {
         type: 'bar',
@@ -187,7 +187,7 @@ saveChartAsImage(chart6, 'chart6');
             }]
         }
     });
-saveChartAsImage(chart8, 'chart8');
+// saveChartAsImage(chart8, 'chart8');
     // Função para carregar métricas principais
     function loadPrimaryMetrics() {
         fetch(baseUrl)
@@ -287,6 +287,6 @@ saveChartAsImage(chart8, 'chart8');
 
     // Carregar os gráficos com todos os dados na inicialização
     fetchAndUpdateCharts();
- saveChartAsImage(chart1, 'chart1');
+ // saveChartAsImage(chart1, 'chart1');
 
 });
