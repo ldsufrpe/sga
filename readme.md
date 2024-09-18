@@ -1,6 +1,6 @@
 # SGA - Sistema de Gestão de Artigos
 
-**SGA** (Sistema de Gestão de Artigos) é uma aplicação web desenvolvida em **Flask** para a gestão de artigos científicos. O sistema oferece funcionalidades para cadastro, listagem, análise de dados e geração de relatórios em PDF de artigos, além de gerenciamento de usuários com permissões diferenciadas para administradores.
+**SGA** (Sistema de Gestão de Artigos) é uma aplicação web desenvolvida com o framework Flask, projetada para facilitar a gestão de artigos científicos de forma eficiente. O sistema permite o cadastro, listagem e análise detalhada de dados dos artigos, oferecendo métricas importantes por meio de dashboards interativos. Além disso, possibilita a geração de relatórios completos em PDF. O SGA também conta com um robusto sistema de gerenciamento de usuários, com níveis de permissão diferenciados, garantindo que administradores possam gerenciar e controlar o acesso ao sistema de maneira segura e eficaz.
 
 ## Funcionalidades Principais
 
