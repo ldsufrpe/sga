@@ -19,7 +19,7 @@ config = {
     'development': DevelopmentConfig,
     'production': ProductionConfig
 }
-
+#variaveis de ambiente
 #export FLASK_ENV=development
 #export FLASK_ENV=production
 #para verificar a variavel atual: echo $FLASK_ENV
