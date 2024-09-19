@@ -3,7 +3,7 @@ import json
 import unicodedata
 import re
 
-with open('../../qualis_capes.json', 'r') as file:
+with open('../../app/qualis/qualis_capes_17_20.json', 'r') as file:
     qualis_dict = json.load(file)
 
 

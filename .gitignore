@@ -1,8 +1,12 @@
 venv/
 env/
-instance/
+
 .idea
 __pycache__/
 *.py[cod]
 *.log
 *.sqlite3
+
+instance/*.db
+instance/site.db
+instance/dev_site.db

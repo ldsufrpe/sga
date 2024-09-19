@@ -93,7 +93,7 @@ qualis_dict = criar_dicionario_qualis_completo(arquivo_excel)
 
 import json
 # Salva o dicionário em um arquivo JSON
-with open('../../qualis_capes.json', 'w') as file:
+with open('../../app/qualis/qualis_capes_17_20.json', 'w') as file:
     json.dump(qualis_dict, file)
 
 

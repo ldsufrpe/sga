@@ -12,8 +12,8 @@ import re
 import backoff
 from app.models import Artigo, Area, Subarea  # Certifique-se de que Area e Subarea estão sendo importados aqui
 import requests
-import base64
 
+import os
 import io
 import csv
 import json
@@ -167,6 +167,14 @@ def check_doi():
         return jsonify({'exists': False, 'message': 'O DOI está disponível.'}), 200
 
 # atualizar campo classificacao
+
+# Definir o caminho absoluto para o arquivo qualis_capes_17_20.json
+# Determina o diretório base do projeto
+current_dir = os.path.abspath(os.path.dirname(__file__))
+base_dir = os.path.abspath(os.path.join(current_dir, os.pardir))
+
+# Caminho absoluto para qualis_capes_17_20.json
+json_file_path = os.path.join(base_dir, 'qualis/qualis_capes_17_20.json')
 cache = {}
 @main_bp.route('/get_classificacao', methods=['POST'])
 def get_classificacao():
@@ -190,7 +198,8 @@ def get_classificacao():
         return jsonify({'classificacao': cache[cache_key]}), 200
 
     try:
-        with open('qualis_capes.json', 'r') as file:
+        print(json_file_path)
+        with open(json_file_path, 'r') as file:
             qualis_dict = json.load(file)
 
         estrato = next((estrato for area, estrato in qualis_dict.get(issn, []) if area == area_avaliacao), None)
