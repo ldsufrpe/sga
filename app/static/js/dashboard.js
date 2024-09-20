@@ -3,7 +3,7 @@ document.addEventListener("DOMContentLoaded", function() {
     const subareaSelector = document.getElementById('subareaSelector');
     const anoInicioSelector = document.getElementById('anoInicioSelector');
     const anoFimSelector = document.getElementById('anoFimSelector');
-    const baseUrl = '/api/dashboard_data';
+    // const baseUrl = '/api/dashboard_data';
     // Referente ao ano atual
     const anoAtual = new Date().getFullYear();
     const tituloAnoAtualElem = document.getElementById('artigosAnoAtualTitulo');
