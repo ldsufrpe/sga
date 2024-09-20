@@ -48,7 +48,7 @@ document.addEventListener("DOMContentLoaded", function() {
         const doi = this.value.trim();
 
         if (doi) {
-            fetch('/check_doi', {
+            fetch(checkDoiUrl, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -60,7 +60,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 if (data.exists) {
                     alert(data.message);
                 } else {
-                    fetch('/fetch_metadata', {
+                    fetch(fetchMetadataUrl, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',

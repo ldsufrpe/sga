@@ -194,6 +194,11 @@
     <!-- Inclusão do JavaScript -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
+    <script type="text/javascript">
+    const checkDoiUrl = "{{ url_for('main.check_doi') }}";  // Use o nome do blueprint
+    const fetchMetadataUrl = "{{ url_for('main.fetch_metadata') }}";  // Use o nome do blueprint
+    </script>
+
        <script src="{{ url_for('static', filename='js/form.js') }}"></script>
 
 </body>
