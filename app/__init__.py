@@ -16,7 +16,7 @@ limiter = Limiter(
 )
 
 def create_app():
-    app = Flask(__name__)
+    app = Flask(__name__, static_url_path='/sga/static')
 
     # Obtém o ambiente definido pela variável FLASK_ENV (padrão para 'development')
     env = os.getenv('FLASK_ENV', 'development')
