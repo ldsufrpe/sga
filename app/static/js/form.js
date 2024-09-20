@@ -20,7 +20,7 @@ document.addEventListener("DOMContentLoaded", function() {
         const area_avaliacao = areaSelect.options[areaSelect.selectedIndex].text;
 
         if (issn && area_avaliacao) {
-            fetch('/get_classificacao', {
+            fetch(getclassificacaoUrl, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
