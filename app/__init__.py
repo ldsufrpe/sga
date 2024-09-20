@@ -57,9 +57,19 @@ def create_app():
     def ratelimit_error(e):
         return "Muitas tentativas de login. Por favor, tente novamente em breve.", 429
 
+    @app.errorhandler(Exception)
+    def handle_exception(e):
+        # Para fins de depuração, retornar a exceção no ambiente de produção
+        if not app.debug:
+            return f"Erro interno no servidor: {str(e)}", 500
+        else:
+            return f"Erro interno no servidor (debug): {str(e)}", 500
+
     return app
 
 @login_manager.user_loader
 def load_user(user_id):
     from app.models import User
     return User.query.get(int(user_id))
+
+x
