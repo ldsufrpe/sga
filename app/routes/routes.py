@@ -33,11 +33,12 @@ def painel():
 def submit_artigo():
     form = ArtigoForm()
 
-    # Carregar as opções de áreas e subáreas CNPq (áreas especificas) do banco de dados
+    # Carregar opções de área e subárea
     form.area_id.choices = [('', 'SELECIONE UMA ÁREA')] + [(area.id, area.nome) for area in Area.query.all()]
-    form.subarea_id.choices = [('', 'SELECIONE UMA ÁREA')] + [(subarea.id, subarea.nome) for subarea in Subarea.query.all()]
+    form.subarea_id.choices = [('', 'SELECIONE UMA SUBÁREA')] + [(subarea.id, subarea.nome) for subarea in Subarea.query.all()]
 
     if form.validate_on_submit():
+        # Salvar o artigo no banco de dados
         artigo = Artigo(
             doi=form.doi.data,
             titulo=form.titulo.data,
@@ -54,7 +55,7 @@ def submit_artigo():
         db.session.add(artigo)
         db.session.commit()
 
-        # Obter os nomes das áreas e subáreas para inclusão no JSON de resposta
+        # Obter os nomes das áreas e subáreas para o JSON de resposta
         area_nome = Area.query.get(artigo.area_id).nome
         subarea_nome = Subarea.query.get(artigo.subarea_id).nome
 
@@ -68,8 +69,8 @@ def submit_artigo():
                 "ano": artigo.ano,
                 "revista": artigo.revista,
                 "issn": artigo.issn,
-                "area": area_nome,  # Nome da área ao invés do ID
-                "subarea": subarea_nome,  # Nome da subárea ao invés do ID
+                "area": area_nome,  # Nome da área
+                "subarea": subarea_nome,  # Nome da subárea
                 "autores": artigo.autores,
                 "internacionalizacao": artigo.internacionalizacao,
                 "classificacao": artigo.classificacao,
@@ -78,13 +79,16 @@ def submit_artigo():
         }
         return jsonify(response), 201, {'Content-Type': 'application/json; charset=utf-8'}
 
-
-    # Se não for uma requisição POST válida, renderiza o formulário normalmente (GET ou POST com erros)
+    # Tratamento para GET ou erro de validação
     if request.method == 'GET' or form.errors:
-        return render_template('form.html', form=form, success_message=None)
-    else:
-        errors = {field: error[0] for field, error in form.errors.items()}
-        return jsonify({"status": "error", "errors": errors}), 400
+        if request.is_xhr or request.content_type == 'application/json':
+            # Retornar os erros como JSON se a requisição for via fetch
+            errors = {field: error[0] for field, error in form.errors.items()}
+            return jsonify({"status": "error", "errors": errors}), 400
+        else:
+            # Renderizar o template HTML para requisições normais
+            return render_template('form.html', form=form, success_message=None)
+
 
 
 @main_bp.route('/api/submissoes', methods=['GET'])

@@ -1,5 +1,7 @@
 import os
-from flask import Flask
+from urllib import request
+
+from flask import Flask, jsonify, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_login import LoginManager
@@ -7,7 +9,7 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from config import config as config_dict  # Importa o dicionário de configurações
 from datetime import timedelta  # Certifique-se de que está importado
-
+import requests
 db = SQLAlchemy()
 migrate = Migrate()
 login_manager = LoginManager()
@@ -77,3 +79,9 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 
+@login_manager.unauthorized_handler
+def unauthorized_callback():
+    if request.is_xhr or request.content_type == 'application/json':
+        return jsonify({"error": "Sua sessão expirou. Por favor, faça login novamente."}), 401
+    else:
+        return redirect(url_for('auth.login'))

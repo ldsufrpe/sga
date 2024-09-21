@@ -204,11 +204,20 @@
     const pingUrl = "{{ url_for('main.ping') }}";  // Usa o url_for para gerar o caminho correto
 
     setInterval(function() {
-        fetch(pingUrl)  // Usa a URL correta gerada pelo Flask
-            .then(response => response.text())
+        fetch(pingUrl)
+            .then(response => {
+                if (response.headers.get('content-type')?.includes('application/json')) {
+                    return response.json();
+                } else {
+                    throw new Error('A resposta não é JSON. Verifique se a sessão expirou.');
+                }
+            })
             .then(data => console.log('Sessão mantida ativa:', data))
-            .catch(error => console.error('Erro ao manter a sessão ativa:', error));
-    }, 30000);  // A cada 60 segundos
+            .catch(error => {
+                console.error('Erro ao manter a sessão ativa:', error);
+                alert('Sua sessão pode ter expirado. Recarregue a página ou faça login novamente.');
+            });
+    }, 20000);  // A cada 60 segundos
 </script>
 
        <script src="{{ url_for('static', filename='js/form.js') }}"></script>
