@@ -6,6 +6,7 @@ from flask_login import LoginManager
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from config import config as config_dict  # Importa o dicionário de configurações
+from datetime import timedelta  # Certifique-se de que está importado
 
 db = SQLAlchemy()
 migrate = Migrate()
@@ -33,6 +34,9 @@ def create_app():
     print(f"Configuração carregada: {config_class.__name__}")
     print(f"Banco de dados usado: {app.config.get('SQLALCHEMY_DATABASE_URI', 'Não definido')}")
 
+    # Configurações de sessão
+    app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=30)
+    app.config['SESSION_PERMANENT'] = True
     # Inicializar as extensões
     db.init_app(app)
     migrate.init_app(app, db)
