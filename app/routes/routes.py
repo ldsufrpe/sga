@@ -81,14 +81,14 @@ def submit_artigo():
 
     # Tratamento para GET ou erro de validação
     if request.method == 'GET' or form.errors:
-        if request.is_xhr or request.content_type == 'application/json':
-            # Retornar os erros como JSON se a requisição for via fetch
+        # Verifica se a requisição é AJAX ou uma requisição com 'application/json'
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest' or request.content_type == 'application/json':
+            # Retornar os erros como JSON se a requisição for via fetch (AJAX)
             errors = {field: error[0] for field, error in form.errors.items()}
             return jsonify({"status": "error", "errors": errors}), 400
         else:
             # Renderizar o template HTML para requisições normais
             return render_template('form.html', form=form, success_message=None)
-
 
 
 @main_bp.route('/api/submissoes', methods=['GET'])

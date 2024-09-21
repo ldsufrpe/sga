@@ -81,7 +81,9 @@ def load_user(user_id):
 
 @login_manager.unauthorized_handler
 def unauthorized_callback():
-    if request.is_xhr or request.content_type == 'application/json':
+    # Verifica se o cabeçalho 'X-Requested-With' é 'XMLHttpRequest' para requisições AJAX
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest' or request.content_type == 'application/json':
         return jsonify({"error": "Sua sessão expirou. Por favor, faça login novamente."}), 401
     else:
         return redirect(url_for('auth.login'))
+
