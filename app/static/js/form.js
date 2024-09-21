@@ -119,9 +119,10 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         })
         .catch(error => {
-            console.error('Erro ao processar o formulário:', error);
-            alert('Ocorreu um erro ao processar o formulário. Tente novamente.');
-        });
+    console.error('Erro ao processar o formulário:', error);
+    alert(`Ocorreu um erro ao processar o formulário: ${error.message}. Verifique a sua conexão ou tente novamente.`);
+});
+
     });
 
     function clearValidationErrors() {
