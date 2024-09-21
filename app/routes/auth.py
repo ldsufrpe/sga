@@ -1,4 +1,4 @@
-from flask import Blueprint
+from flask import Blueprint, session
 from flask import render_template, flash, request
 from app import limiter
 from app.forms import LoginForm
@@ -42,6 +42,7 @@ def login():
         else:
             # Sucesso no login
             login_user(user, remember=form.remember.data)
+            session.permanent = True  # Adicione esta linha
             logging.info(f"Usuário {user.email} logado com sucesso. IP: {request.remote_addr}")
 
             # Verificar redirecionamento seguro
@@ -70,3 +71,5 @@ def index():
     if not current_user.is_authenticated:
         return redirect(url_for('auth.login'))  # Redireciona para a página de login
     return redirect(url_for('main.painel'))  # Redireciona para o painel se o usuário estiver logado
+
+

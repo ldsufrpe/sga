@@ -642,3 +642,7 @@ def flash_test():
 @main_bp.route('/ping')
 def ping():
     return 'pong', 200
+@main_bp.route('/teste_sessao')
+@login_required
+def teste_sessao():
+    return "Sessão ativa"

@@ -100,28 +100,53 @@ document.addEventListener("DOMContentLoaded", function() {
         const form = this;
         const formData = new FormData(form);
 
-        fetch(form.action, {
-            method: 'POST',
-            body: formData,
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.status === 'success') {
-                alert('Artigo enviado com sucesso!');
-                clearValidationErrors();  // Limpar as mensagens de erro
-                resetFormFields();  // Limpar todos os campos do formulário
-            } else if (data.errors) {
-                let errorMessage = 'Erro ao enviar o formulário:\n';
-                for (let field in data.errors) {
-                    errorMessage += `${data.errors[field]}\n`;
-                }
-                alert(errorMessage);
-            }
-        })
-        .catch(error => {
+fetch(form.action, {
+    method: 'POST',
+    headers: {
+        'X-Requested-With': 'XMLHttpRequest',  // Adicione este cabeçalho
+    },
+    body: formData,
+})
+.then(response => {
+    if (response.status === 401) {
+        throw new Error('Usuário não autenticado');
+    }
+    const contentType = response.headers.get('content-type');
+    if (contentType && contentType.includes('application/json')) {
+        return response.json().catch(error => {
+            throw new Error('Erro ao analisar a resposta JSON.');
+        });
+    } else {
+        return response.text().then(text => {
+            throw new Error('Resposta inesperada do servidor.');
+        });
+    }
+})
+.then(data => {
+    if (data.status === 'success') {
+        alert('Artigo enviado com sucesso!');
+        clearValidationErrors();  // Limpar as mensagens de erro
+        resetFormFields();  // Limpar todos os campos do formulário
+    } else if (data.errors) {
+        let errorMessage = 'Erro ao enviar o formulário:\n';
+        for (let field in data.errors) {
+            errorMessage += `${data.errors[field]}\n`;
+        }
+        alert(errorMessage);
+    } else {
+        alert('Resposta inesperada do servidor.');
+    }
+})
+.catch(error => {
     console.error('Erro ao processar o formulário:', error);
-    alert(`Ocorreu um erro ao processar o formulário: ${error.message}. Verifique a sua conexão ou tente novamente.`);
+    if (error.message === 'Usuário não autenticado') {
+        alert('Sua sessão expirou. Por favor, faça login novamente.');
+        window.location.href = redirectlogin;  // Substitua pela URL da sua página de login
+    } else {
+        alert(`Ocorreu um erro ao processar o formulário: ${error.message}. Verifique a sua conexão ou tente novamente.`);
+    }
 });
+
 
     });
 
