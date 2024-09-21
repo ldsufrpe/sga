@@ -1,11 +1,13 @@
 import os
 
-from flask import Flask, jsonify, redirect, url_for, request
+from flask import Flask, jsonify, redirect, url_for, request, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_login import LoginManager
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
+from flask_wtf.csrf import CSRFProtect
+from flask_wtf.csrf import CSRFError
 from config import config as config_dict  # Importa o dicionário de configurações
 from datetime import timedelta  # Certifique-se de que está importado
 import requests
@@ -16,7 +18,7 @@ limiter = Limiter(
     get_remote_address,
     default_limits=["200 per day", "50 per hour"]
 )
-
+csrf = CSRFProtect()
 def create_app():
     app = Flask(__name__, static_url_path='/sga/static')
 
@@ -44,6 +46,8 @@ def create_app():
     login_manager.init_app(app)
     limiter.init_app(app)
 
+    csrf.init_app(app)
+
     # Configurações adicionais
     login_manager.login_view = 'auth.login'
     login_manager.login_message_category = 'info'
@@ -70,6 +74,13 @@ def create_app():
         else:
             return f"Erro interno no servidor (debug): {str(e)}", 500
 
+    @app.errorhandler(CSRFError)
+    def handle_csrf_error(e):
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return jsonify({'status': 'error', 'message': 'Sessão expirada. Por favor, faça login novamente.'}), 400
+        else:
+            flash('Sessão expirada. Por favor, faça login novamente.', 'error')
+            return redirect(url_for('auth.login'))
     return app
 
 @login_manager.user_loader
@@ -85,4 +96,6 @@ def unauthorized_callback():
         return jsonify({"error": "Sua sessão expirou. Por favor, faça login novamente."}), 401
     else:
         return redirect(url_for('auth.login'))
+
+
 
