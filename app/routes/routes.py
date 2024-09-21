@@ -634,3 +634,7 @@ def dashboard_data():
 def flash_test():
     flash('Esta é uma mensagem de teste de sucesso!', 'success')
     return render_template('listar_artigos.html')  # ou qualquer outro template que esteja usando
+
+@main_bp.route('/ping')
+def ping():
+    return 'pong', 200

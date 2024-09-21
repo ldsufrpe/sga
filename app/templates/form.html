@@ -200,6 +200,17 @@
     const getclassificacaoUrl = "{{ url_for('main.get_classificacao') }}";  // Use o nome do blueprint
     </script>
 
+    <script type="text/javascript">
+    const pingUrl = "{{ url_for('main.ping') }}";  // Usa o url_for para gerar o caminho correto
+
+    setInterval(function() {
+        fetch(pingUrl)  // Usa a URL correta gerada pelo Flask
+            .then(response => response.text())
+            .then(data => console.log('Sessão mantida ativa:', data))
+            .catch(error => console.error('Erro ao manter a sessão ativa:', error));
+    }, 30000);  // A cada 60 segundos
+</script>
+
        <script src="{{ url_for('static', filename='js/form.js') }}"></script>
 
 </body>
