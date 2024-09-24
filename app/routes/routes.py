@@ -432,7 +432,6 @@ def exportar_artigos():
 ############################# Dashboard ###########################
 
 @main_bp.route('/dashboard', methods=['GET'])
-@login_required
 def dashboard():
     # Consultar áreas de avaliação
     areas = Area.query.all()
@@ -512,7 +511,7 @@ def dashboard_data():
             anos[artigo.ano] = 0
         anos[artigo.ano] += 1
 
-        # Chart 2 - Classificação Qualis
+        # Chart 2 e chart 7 Classificação Qualis
         classificacao = artigo.classificacao if artigo.classificacao else "Não Classificado"
         if classificacao not in classificacoes:
             classificacoes[classificacao] = 0
@@ -540,10 +539,10 @@ def dashboard_data():
         else:
             internacionalizados[1] += 1  # 'Não'
 
-        # Chart 7 - Classificação Qualis (Gráfico de Pizza)
-        if classificacao not in classificacoes:
-            classificacoes[classificacao] = 0
-        classificacoes[classificacao] += 1
+        # Chart 7 - Classificação Qualis (Gráfico de Pizza) [Já foi computado classificacao]
+        # if classificacao not in classificacoes:
+        #     classificacoes[classificacao] = 0
+        # classificacoes[classificacao] += 1
 
         # Chart 8 - Número de Artigos por Área de Avaliação Qualis
         area_nome = Area.query.get(artigo.area_id).nome if artigo.area_id else 'Área não encontrada'
@@ -588,50 +587,6 @@ def dashboard_data():
         dados_graficos['chart8']['datasets'][0]['data'].append(count)
 
     return jsonify(dados_graficos)
-
-
-# def image_to_base64(image_path):
-#     with open(image_path, "rb") as image_file:
-#         return base64.b64encode(image_file.read()).decode('utf-8')
-
-# @main_bp.route('/save-chart', methods=['POST'])
-# def save_chart():
-#     data = request.get_json()
-#     chart_id = data['chartId']
-#     image_data = data['imageData'].split(',')[1]  # Remove o prefixo base64
-#
-#     # Verificar o conteúdo base64
-#     # print(f"Recebendo imagem do gráfico: {chart_id}")
-#     # print(f"Primeiros 50 caracteres da imagem base64: {image_data[:50]}")
-#
-#     # Decodificar a imagem base64
-#     try:
-#         image_bytes = base64.b64decode(image_data)
-#     except Exception as e:
-#         print(f"Erro na decodificação da imagem: {e}")
-#         return jsonify({"error": f"Falha na decodificação da imagem: {e}"}), 500
-#
-#     # Definir o caminho do diretório 'static/img'
-#     img_dir = os.path.join('static', 'img')
-#
-#     # Criar o diretório 'static/img' se ele não existir
-#     if not os.path.exists(img_dir):
-#         os.makedirs(img_dir)
-#         print(f"Diretório 'static/img' criado.")
-#
-#     # Tentar salvar a imagem no servidor
-#     file_path = os.path.join(img_dir, f'{chart_id}.png')
-#     # print(f"Tentando salvar a imagem em: {file_path}")
-#
-#     try:
-#         with open(file_path, 'wb') as f:
-#             f.write(image_bytes)
-#         print(f"Imagem salva com sucesso: {file_path}")
-#     except Exception as e:
-#         print(f"Erro ao salvar a imagem: {e}")
-#         return jsonify({"error": f"Falha ao salvar a imagem: {e}"}), 500
-#
-#     return jsonify({"message": "Imagem salva com sucesso!", "file_path": file_path})
 
 
 @main_bp.route('/flash_test')
