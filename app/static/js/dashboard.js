@@ -153,7 +153,10 @@ document.addEventListener("DOMContentLoaded", function() {
             labels: [],
             datasets: [{
                 label: 'Classificação Qualis',
-            backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#8E44AD', '#E67E22', '#2ECC71', '#1ABC9C', '#F1C40F'],                data: []
+            backgroundColor: [ '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0',
+    '#8E44AD', '#E67E22', '#2ECC71', '#1ABC9C',
+    '#F1C40F', '#3498DB', '#9B59B6', '#E74C3C',
+    '#34495E'],                data: []
             }]
         },
         options: {
