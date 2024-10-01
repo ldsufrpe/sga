@@ -204,6 +204,7 @@
 
     <!-- Botão de Deletar -->
     <form action="{{ url_for('main.deletar_artigo', id=artigo.id) }}" method="POST" class="inline-block">
+            {{ form.hidden_tag() }} <!-- Isso garante que o token CSRF seja enviado -->
         <button type="submit" class="text-white bg-red-500 hover:bg-red-600 font-semibold py-1 px-3 rounded-md text-sm" onclick="return confirm('Tem certeza que deseja deletar este artigo?');" title="Excluir">
             <i class="fas fa-trash-alt"></i> <!-- Ícone de Deletar (Lixeira) -->
         </button>

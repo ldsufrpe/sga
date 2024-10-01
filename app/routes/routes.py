@@ -261,8 +261,8 @@ def listar_artigos():
 
     areas = Area.query.all()
     subareas = Subarea.query.all()
-
-    return render_template('listar_artigos.html', artigos=artigos, areas=areas, subareas=subareas, sort_by=sort_by, sort_dir=sort_dir)
+    form = ArtigoForm()
+    return render_template('listar_artigos.html', artigos=artigos, areas=areas, subareas=subareas, form=form, sort_by=sort_by, sort_dir=sort_dir)
 
 @main_bp.route('/visualizar_artigo/<int:id>')
 @login_required
@@ -277,8 +277,8 @@ def visualizar_artigo(id):
     # Passa os nomes de área e subárea para o template
     area_nome = area.nome if area else "Não especificada"
     subarea_nome = subarea.nome if subarea else "Não especificada"
-
-    return render_template('visualizar_artigo.html', artigo=artigo, area_nome=area_nome, subarea_nome=subarea_nome)
+    form = ArtigoForm()
+    return render_template('visualizar_artigo.html', artigo=artigo, area_nome=area_nome, form=form, subarea_nome=subarea_nome)
 
 
 
