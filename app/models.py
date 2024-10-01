@@ -36,7 +36,7 @@ class Subarea(db.Model):
 
 class Artigo(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    doi = db.Column(db.String(255), unique=True, nullable=False)
+    doi = db.Column(db.String(255), unique=True, nullable=True)
     titulo = db.Column(db.String(255), nullable=False)
     ano = db.Column(db.Integer, nullable=False)
     revista = db.Column(db.String(255), nullable=False)

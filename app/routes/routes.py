@@ -39,8 +39,9 @@ def submit_artigo():
 
     if form.validate_on_submit():
         # Salvar o artigo no banco de dados
+        doi = form.doi.data if form.doi.data.strip() else None
         artigo = Artigo(
-            doi=form.doi.data,
+            doi=doi,
             titulo=form.titulo.data,
             ano=form.ano.data,
             revista=form.revista.data,
