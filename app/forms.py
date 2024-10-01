@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, IntegerField, SelectField, BooleanField, DecimalField, SubmitField
-from wtforms.validators import DataRequired, Length, Regexp, NumberRange, Optional, ValidationError
+from wtforms.validators import DataRequired, Length, Regexp, NumberRange, Optional, ValidationError, InputRequired
 from app.models import Artigo
 import re
 from wtforms import HiddenField
@@ -31,25 +31,23 @@ class ArtigoForm(FlaskForm):
     article_id = HiddenField()  # Campo oculto para armazenar o ID do artigo
 
     def validate_doi(self, field):
-        # Limpeza do DOI removendo a URL base, se existir
-        doi = re.sub(r'^https?://doi.org/', '', field.data)
+        if field.data:  # Se o DOI não estiver vazio, realiza a validação
+            # Limpeza do DOI removendo a URL base, se existir
+            doi = re.sub(r'^https?://doi.org/', '', field.data)
 
-        # Verificação do formato do DOI
-        pattern = r'^(10\.\d{4,9}/[-._;()/:A-Z0-9]+)$'
-        if not re.match(pattern, doi, re.IGNORECASE):
-            raise ValidationError("O DOI deve estar no formato 10.xxxx/xxxxx.")
+            # Verificação do formato do DOI
+            pattern = r'^(10\.\d{4,9}/[-._;()/:A-Z0-9]+)$'
+            if not re.match(pattern, doi, re.IGNORECASE):
+                raise ValidationError("O DOI deve estar no formato 10.xxxx/xxxxx.")
 
-        # Atualiza o campo com o DOI limpo
-        field.data = doi
-
-        # Verifica se o DOI já existe no banco de dados e se o artigo com esse DOI não é o que está sendo editado
-        existing_article = Artigo.query.filter_by(doi=doi).first()
-        if existing_article and existing_article.id != int(self.article_id.data or 0):
-            raise ValidationError("O DOI informado já existe no banco de dados. Por favor, insira um DOI único.")
+            # Verifica se o DOI já existe no banco de dados
+            existing_article = Artigo.query.filter_by(doi=doi).first()
+            if existing_article and existing_article.id != int(self.article_id.data or 0):
+                raise ValidationError("O DOI informado já existe no banco de dados.")
 
     # Demais campos do formulário
     doi = StringField('DOI', validators=[
-        DataRequired(message="O DOI é obrigatório."),
+        Optional(),  # O DOI agora é opcional
         validate_doi
     ])
     titulo = StringField('Título', validators=[
@@ -80,8 +78,9 @@ class ArtigoForm(FlaskForm):
     internacionalizacao = BooleanField('Internacionalização')
     classificacao = StringField('Classificação', render_kw={'readonly': True})
     fator_impacto = DecimalField('Fator de Impacto', validators=[
-        NumberRange(min=0, message="O fator de impacto deve ser um número positivo."),
-        DataRequired(message="Insira um número decimal com ponto (.)")
+    InputRequired(message="O fator de impacto é obrigatório."),
+        # Alteração: InputRequired para aceitar 0 como válido
+    NumberRange(min=0, message="O fator de impacto deve ser um número positivo ou zero.")  # Permite valor zero
     ])
 
     submit = SubmitField('Enviar')
